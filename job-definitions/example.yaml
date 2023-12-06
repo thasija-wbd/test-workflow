@@ -16,7 +16,7 @@ spec:
   usageDataQueries:
     - alias: dataset1
       query: sum(metric) by (omd_component)
-    - alias: dataset2
+    - alias: dataset
       query: sum(metric2) by (omd_component)
   costDataQueries:
     - alias: costdata1

@@ -14,6 +14,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.head_ref }}
+
       - name: Detect now yaml file changes
         id: detect-now-yaml-changes
         run: |
