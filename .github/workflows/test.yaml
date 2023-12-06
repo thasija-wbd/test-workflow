@@ -34,6 +34,7 @@ jobs:
             done
           else
             echo "No YAML files found in the changes."
+          fi
       - name: Convert yaml to json
         uses: fabasoad/data-format-converter-action@v0
         id: yaml2json
