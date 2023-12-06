@@ -1,0 +1,31 @@
+name: test-workflow
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "job-definitions/**"
+
+jobs:
+  validate:
+    name: "find changed yaml file content"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Detect now yaml file changes
+        id: detect-now-yaml-changes
+        run: |
+          EXCLUDE_AUTO_COMMIT_CHANGES=false
+          CHANGED_FILES=$(git diff --name-only HEAD^..HEAD -- job-definitions/)
+          CHANGED_FILES_COUNT=$(echo "$CHANGED_FILES" | wc -l)
+          echo $CHANGED_FILES
+          if [ "$CHANGED_FILES_COUNT" -gt 0 ]; then
+            for FILE in $CHANGED_FILES; do
+              echo "Content of changed YAML file $FILE:"
+              cat "$FILE"
+            done
+          else
+            echo "No YAML files found in the changes."
+          fi
