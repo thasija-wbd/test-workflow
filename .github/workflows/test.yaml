@@ -29,6 +29,7 @@ jobs:
           CHANGED_YAML=$(git diff --name-only ${{ github.event.before }}..${{ github.sha }} -- job-definitions/**)
           CHANGED_YAML_COUNT=$(echo "$CHANGED_YAML" | wc -l)
           echo "Changed YAML files: $CHANGED_YAML_COUNT"
+          echo "changed yaml : $CHANGED_YAML"
           concatenated_lines=""
           for ((i=1; i<=CHANGED_YAML_COUNT; i++)); do
             line=$(echo "$CHANGED_YAML" | sed -n "${i}p")
@@ -42,7 +43,7 @@ jobs:
         id: convert-yaml-to-json
         run: |
           JSON_FILES=()
-          IFS='|' read -ra files_array <<< "$concatenated_lines"
+          IFS='|' read -ra files_array <<< "${{steps.detect-changed-yaml.changed_yaml}}"
           for FILE in "${files_array[@]}"; do
             echo "Converting $FILE to JSON..."
             json_content=$(yq eval "$FILE" -o=json)
