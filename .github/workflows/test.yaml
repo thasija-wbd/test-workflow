@@ -59,7 +59,8 @@ jobs:
       - name: Echo JSON files
         run: |
           for JSON_FILE in ${{ steps.convert-yaml-to-json.outputs.json_files }}; do
-            id=$(echo "$JSON_FILE" | jq -r '.id')
+            echo $JSON_FILE
+            id=$(echo "$JSON_FILE" | jq -r '.metadata.id')
             if [ -n "$id" ]; then
               echo "ID is present: $id"
               event_payload=$(echo "$JSON_FILE" | jq -c '{"action": "UPDATE", "payload": {"jobId": .metadata.id,"name":.metadata.name}}')
