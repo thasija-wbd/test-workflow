@@ -43,7 +43,7 @@ jobs:
         id: convert-yaml-to-json
         run: |
           JSON_FILES=()
-          IFS='|' read -ra files_array <<< "${{steps.detect-changed-yaml.changed_yaml}}"
+          IFS='|' read -ra files_array <<< "${{steps.detect-changed-yaml.outputs.changed_yaml}}"
           for FILE in "${files_array[@]}"; do
             echo "Converting $FILE to JSON..."
             json_content=$(yq eval "$FILE" -o=json)
