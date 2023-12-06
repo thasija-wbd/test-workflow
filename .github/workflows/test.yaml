@@ -30,15 +30,25 @@ jobs:
           CHANGED_YAML_COUNT=$(echo "$CHANGED_YAML" | wc -l)
           echo "Changed YAML files:"
           echo "$CHANGED_YAML"
-          echo "::set-output name=changed_yaml::$CHANGED_YAML"
+          echo "::set-output name=changed_yaml::\"$CHANGED_YAML\""
 
       - name: Convert YAML to JSON
         id: convert-yaml-to-json
         run: |
+          JSON_FILES=()
           for FILE in ${{ steps.detect-changed-yaml.outputs.changed_yaml }}; do
             echo "Converting $FILE to JSON..."
             json_content=$(yq eval "$FILE" -o=json)
             json_file="${FILE%.yml}.json"
             echo "$json_content" > "$json_file"
             echo "Converted JSON content saved to $json_file"
+            JSON_FILES+=("$json_file")
+          done
+          echo "::set-output name=json_files::${JSON_FILES[@]}"
+
+      - name: Echo JSON files
+        run: |
+          for JSON_FILE in ${{ steps.convert-yaml-to-json.outputs.json_files }}; do
+            echo "Contents of JSON file: $JSON_FILE"
+            cat "$JSON_FILE"
           done
