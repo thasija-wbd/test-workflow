@@ -37,7 +37,7 @@ jobs:
           done
 
           concatenated_lines="${concatenated_lines%|}"
-          echo "::set-output name=changed_yaml:: $concatenated_lines"
+          echo "::set-output name=changed_yaml::$concatenated_lines"
 
       - name: Convert YAML to JSON
         id: convert-yaml-to-json
@@ -46,7 +46,8 @@ jobs:
           IFS='|' read -ra files_array <<< "${{steps.detect-changed-yaml.outputs.changed_yaml}}"
           for FILE in "${files_array[@]}"; do
             echo "Converting $FILE to JSON..."
-            json_content=$(yq eval "$FILE" -o=json)
+            trimmed_file=$(echo "$FILE" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+            json_content=$(yq eval "$trimmed_file" -o=json)            
             json_file="${FILE%.yml}.json"
             echo "$json_content" > "$json_file"
             echo "Converted JSON content saved to $json_file"
