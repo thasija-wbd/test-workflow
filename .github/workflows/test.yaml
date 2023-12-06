@@ -29,7 +29,17 @@ jobs:
             for FILE in $CHANGED_FILES; do
               echo "Content of changed YAML file $FILE:"
               cat "$FILE"
+              # Pass the file to the next step
+              echo "::set-output name=changed_file::$FILE"
             done
           else
             echo "No YAML files found in the changes."
-          fi
+      - name: Convert yaml to json
+        uses: fabasoad/data-format-converter-action@v0
+        id: yaml2json
+        with:
+          input: "${{ steps.detect-now-yaml-changes.outputs.changed_file }}"
+          from: "yaml"
+          to: "json"
+      - name: Print result
+        run: echo "${{ steps.yaml2json.outputs.output }}"
