@@ -18,29 +18,25 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           ref: ${{ github.head_ref }}
           fetch-depth: 2
+
       - name: Detect now yaml file changes
         id: detect-now-yaml-changes
         run: |
           EXCLUDE_AUTO_COMMIT_CHANGES=false
           CHANGED_FILES=$(git diff --name-only HEAD^ HEAD -- job-definitions/)
           CHANGED_FILES_COUNT=$(echo "$CHANGED_FILES" | wc -l)
-          echo $CHANGED_FILES
-          if [ "$CHANGED_FILES_COUNT" -gt 0 ]; then
-            for FILE in $CHANGED_FILES; do
-              echo "Content of changed YAML file $FILE:"
-              cat "$FILE"
-              # Pass the file to the next step
-              echo "::set-output name=changed_file::$FILE"
-            done
-          else
-            echo "No YAML files found in the changes."
-          fi
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+          # Set the list of changed files as an output variable
+          echo "::set-output name=changed_files::$CHANGED_FILES"
+
       - name: Convert yaml to json
-        uses: fabasoad/data-format-converter-action@v0
-        id: yaml2json
-        with:
-          input: "${{ steps.detect-now-yaml-changes.outputs.changed_file }}"
-          from: "yaml"
-          to: "json"
-      - name: Print result
-        run: echo "${{ steps.yaml2json.outputs.output }}"
+        id: convert-yaml-to-json
+        run: |
+          for FILE in ${{ steps.detect-now-yaml-changes.outputs.changed_files }}; do
+            echo "Converting $FILE to JSON..."
+            json_content=$(your_conversion_command "$FILE")  # Replace with your actual conversion command
+            echo "Converted JSON content:"
+            echo "$json_content"
+            # You might want to save or use the converted content here
+          done
