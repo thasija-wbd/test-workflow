@@ -32,7 +32,7 @@ jobs:
           echo "changed yaml : $CHANGED_YAML"
           concatenated_lines=""
           for ((i=1; i<=CHANGED_YAML_COUNT; i++)); do
-            line=$(echo "$CHANGED_YAML" | sed -n "${i}p" |sed -n "${i}p" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+            line=$(echo "$CHANGED_YAML" | sed -n "${i}p" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
             concatenated_lines="${concatenated_lines}${line}|"
           done
 
