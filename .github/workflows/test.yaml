@@ -62,11 +62,11 @@ jobs:
             json_content=$(cat "$JSON_FILE")
             echo $json_content
             id=$(echo "$json_content" | jq -r '.metadata.id')
-            if [ -n "$id" ]; then
+            if [-z "${id+x}" ]; then
+              echo "ID is not present"
+            else
               echo "ID is present: $id"
               event_payload=$(echo "$json_content" | jq -c '{"action": "UPDATE", "payload": {"jobId": .metadata.id,"name":.metadata.name}}')
-              echo $event-payload
-            else
-              echo "ID is not present"
+              echo $event_payload
             fi
           done
