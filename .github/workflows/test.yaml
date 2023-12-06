@@ -1,4 +1,4 @@
-name: test-workflow
+name: convert-yaml-to-json
 
 on:
   push:
@@ -8,35 +8,37 @@ on:
       - "job-definitions/**"
 
 jobs:
-  validate:
-    name: "find changed yaml file content"
+  convert:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          ref: ${{ github.head_ref }}
-          fetch-depth: 2
+          fetch-depth: 2 # Ensure the entire Git history is available
 
-      - name: Detect now yaml file changes
-        id: detect-now-yaml-changes
+      - name: Install yq
         run: |
-          EXCLUDE_AUTO_COMMIT_CHANGES=false
-          CHANGED_FILES=$(git diff --name-only HEAD^ HEAD -- job-definitions/)
-          CHANGED_FILES_COUNT=$(echo "$CHANGED_FILES" | wc -l)
-          echo "Changed files:"
-          echo "$CHANGED_FILES"
-          # Set the list of changed files as an output variable
-          echo "::set-output name=changed_files::$CHANGED_FILES"
+          sudo add-apt-repository ppa:rmescandon/yq -y
+          sudo apt-get update
+          sudo apt-get install yq -y
 
-      - name: Convert yaml to json
+      - name: Detect changed YAML files
+        id: detect-changed-yaml
+        run: |
+          CHANGED_YAML=$(git diff --name-only ${{ github.event.before }}..${{ github.sha }} -- job-definitions/*.yml)
+          CHANGED_YAML_COUNT=$(echo "$CHANGED_YAML" | wc -l)
+          echo "Changed YAML files:"
+          echo "$CHANGED_YAML"
+          echo "::set-output name=changed_yaml::$CHANGED_YAML"
+
+      - name: Convert YAML to JSON
         id: convert-yaml-to-json
         run: |
-          for FILE in ${{ steps.detect-now-yaml-changes.outputs.changed_files }}; do
+          for FILE in ${{ steps.detect-changed-yaml.outputs.changed_yaml }}; do
             echo "Converting $FILE to JSON..."
-            json_content=$(your_conversion_command "$FILE")  # Replace with your actual conversion command
-            echo "Converted JSON content:"
-            echo "$json_content"
-            # You might want to save or use the converted content here
+            json_content=$(yq eval "$FILE" -o=json)
+            json_file="${FILE%.yml}.json"
+            echo "$json_content" > "$json_file"
+            echo "Converted JSON content saved to $json_file"
           done
