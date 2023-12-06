@@ -17,11 +17,12 @@ jobs:
         with:
           fetch-depth: 2 # Ensure the entire Git history is available
 
-      - name: Install yq
+      - name: Install dependencies
         run: |
           sudo add-apt-repository ppa:rmescandon/yq -y
           sudo apt-get update
           sudo apt-get install yq -y
+          sudo apt-get install jq
 
       - name: Detect changed YAML files
         id: detect-changed-yaml
@@ -58,6 +59,12 @@ jobs:
       - name: Echo JSON files
         run: |
           for JSON_FILE in ${{ steps.convert-yaml-to-json.outputs.json_files }}; do
-            echo "Contents of JSON file: $JSON_FILE"
-            cat "$JSON_FILE"
+            id=$(echo "$JSON_FILE" | jq -r '.id')
+            if [ -n "$id" ]; then
+              echo "ID is present: $id"
+              event-payload=$(echo "$JSON_FILE" | jq -c '{"action": "UPDATE", "payload": {"jobId": .metadata.id,"name":.metadata.name}}')
+              echo $event-payload
+            else
+              echo "ID is not present"
+            fi
           done
