@@ -30,20 +30,27 @@ jobs:
           CHANGED_YAML=$(git diff --name-only ${{ github.event.before }}..${{ github.sha }} -- job-definitions/**)
           CHANGED_YAML_COUNT=$(echo "$CHANGED_YAML" | wc -l)
           echo "Changed YAML files: $CHANGED_YAML_COUNT"
-          echo "changed yaml : $CHANGED_YAML"
-          concatenated_lines=""
-          for ((i=1; i<=CHANGED_YAML_COUNT; i++)); do
-            line=$(echo "$CHANGED_YAML" | sed -n "${i}p")
-            YAML_CONTENT=$(cat "$line")
-            concatenated_lines="${concatenated_lines}${YAML_CONTENT} -------"
-            echo "${concatenated_lines}"
+          echo "Changed YAML files: $CHANGED_YAML"
+
+          # Initialize an array to store YAML contents
+          YAML_CONTENT_ARRAY=()
+
+          # Loop through changed YAML files
+          for FILE in $CHANGED_YAML; do
+            YAML_CONTENT=$(cat "$FILE")
+            YAML_CONTENT_ARRAY+=("${YAML_CONTENT} -------")
           done
-          echo "BEFORE OPERATION ${concatenated_lines}"
+
+          # Join array elements into a single string
+          concatenated_lines=$(IFS=$'\n'; echo "${YAML_CONTENT_ARRAY[*]}")
+
+          # Remove trailing ' -------' from the concatenated lines
           concatenated_lines="${concatenated_lines% -------}"
-          echo "Concatenated lines $concatenated_lines"
-          echo "::set-output name=changed_yaml::${{toJSON(concatenated_lines)}}"
+
+          # Output the concatenated lines as a JSON-encoded string
+          echo "::set-output name=changed_yaml::${concatenated_lines}"
 
       - name: calling custom-action-to-test
         uses: thasija-wbd/test-custom-action@v0.0.2
         with:
-          yaml_files: ${{steps.detect-changed-yaml.outputs.changed_yaml}}
+          yaml_files: ${{ steps.detect-changed-yaml.outputs.changed_yaml }}
