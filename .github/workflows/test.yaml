@@ -48,7 +48,7 @@ jobs:
           concatenated_lines="${concatenated_lines% -------}"
 
           # Output the concatenated lines as a JSON-encoded string
-          echo "::set-output name=changed_yaml::${concatenated_lines}"
+          echo "::set-output name=changed_yaml::${{ toJSON(concatenated_lines) }}"
 
       - name: calling custom-action-to-test
         uses: thasija-wbd/test-custom-action@v0.0.2
