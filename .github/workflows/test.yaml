@@ -33,14 +33,16 @@ jobs:
           echo "changed yaml : $CHANGED_YAML"
           concatenated_lines=""
           for ((i=1; i<=CHANGED_YAML_COUNT; i++)); do
-             YAML_CONTENT=$(cat "$CHANGED_YAML")
-             concatenated_lines="${concatenated_lines}${YAML_CONTENT} -------"
-             echo ${concatenated_lines}
+            line=$(echo "$CHANGED_YAML" | sed -n "${i}p")
+            YAML_CONTENT=$(cat "$line")
+            concatenated_lines="${concatenated_lines}${YAML_CONTENT} -------"
+            echo "${concatenated_lines}"
           done
           echo "BEFORE OPERATION ${concatenated_lines}"
-          concatenated_lines="${concatenated_lines%-------}"
+          concatenated_lines="${concatenated_lines% -------}"
           echo "Concatenated lines $concatenated_lines"
           echo "::set-output name=changed_yaml::$concatenated_lines"
+
       - name: calling custom-action-to-test
         uses: thasija-wbd/test-custom-action@v0.0.2
         with:
