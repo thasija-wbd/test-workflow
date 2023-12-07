@@ -34,8 +34,8 @@ jobs:
           concatenated_lines=""
           for ((i=1; i<=CHANGED_YAML_COUNT; i++)); do
              YAML_CONTENT=$(cat "$CHANGED_YAML")
-             concatenated_lines="${concatenated_lines}${$YAML_CONTENT} -------"
-             echo "$concatenated_lines"
+             concatenated_lines="${concatenated_lines}${YAML_CONTENT} -------"
+             echo ${concatenated_lines}
           done
           concatenated_lines="${concatenated_lines%-------}"
           echo "Concatenated lines $concatenated_lines"
