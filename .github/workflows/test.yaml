@@ -34,7 +34,7 @@ jobs:
           concatenated_lines=""
           for ((i=1; i<=CHANGED_YAML_COUNT; i++)); do
             YAML_CONTENT= cat $CHANGED_YAML
-            line=$(echo "$YAML_CONTENT" | sed -n "${i}p" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+            line=$(echo "$YAML_CONTENT" | sed -n "${i}p")
             concatenated_lines="${concatenated_lines}${line} -------"
           done
 
