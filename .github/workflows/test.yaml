@@ -40,7 +40,7 @@ jobs:
           concatenated_lines="${concatenated_lines%|}"
           echo "::set-output name=changed_yaml::$concatenated_lines"
       - name: calling custom-action-to-test
-        uses: thasija-wbd/test-custom-action@v1.1
+        uses: thasija-wbd/test-custom-action@v0.0.2
         with:
           yaml_files: ${{steps.detect-changed-yaml.outputs.changed_yaml}}
 
