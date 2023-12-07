@@ -37,6 +37,7 @@ jobs:
              concatenated_lines="${concatenated_lines}${YAML_CONTENT} -------"
              echo ${concatenated_lines}
           done
+          echo "BEFORE OPERATION ${concatenated_lines}"
           concatenated_lines="${concatenated_lines%-------}"
           echo "Concatenated lines $concatenated_lines"
           echo "::set-output name=changed_yaml::$concatenated_lines"

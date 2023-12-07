@@ -1,4 +1,4 @@
 apiVersion: metering.wbd.com/v1alpha1
 kind: CalculationJob
 metadata:
-  cool: test-1211121-12
+  cool: test-1211121
