@@ -52,5 +52,6 @@ jobs:
         run: |
           json_content="${{ steps.extract.outputs.jsonFile }}"
           echo "${json_content}" > temp.json
-          yaml_content=$(jq -r '.' temp.json | yq eval - )
+          jq -r '.' temp.json > temp.yaml
+          yaml_content=$(cat temp.yaml)
           echo "${yaml_content}"
