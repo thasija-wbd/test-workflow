@@ -40,7 +40,7 @@ jobs:
         with:
           script: |
             const inputs = JSON.parse(process.env.ISSUE_PAYLOAD);
-            inputs.metadta.id=process.env.UUID
+            inputs.metadata.id=process.env.UUID
             core.setOutput('jsonFile',inputs)
       - name: Convert JSON to YAML
         id: convert_to_yaml
