@@ -45,7 +45,7 @@ jobs:
       - name: Convert JSON to YAML
         id: convert_to_yaml
         run: |
-          json_content="${{ steps.extract.output.jsonFile }}"
+          json_content="${{ steps.extract.outputs.jsonFile }}"
           echo "${json_content}"
           yaml_content=$(echo "$json_content" | jq -r '.' | yq eval -)
           echo "${yaml_content}"
