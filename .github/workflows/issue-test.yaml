@@ -28,7 +28,7 @@ jobs:
       - name: Set UUID as an environment variable
         id: set_uuid
         run: |
-          UUID=$(uuidgen)"
+          UUID=$(uuidgen)
           echo "$UUID"
           echo "::set-output name=uuid::$UUID"
       - name: Extract variables for repo
