@@ -25,16 +25,20 @@ jobs:
           issue_id: ${{ github.event.issue.number }}
           payload_marker: job-definition-yaml
           payload: yaml
-      - run: npm ci
-      - run: npm install uuid
+      - name: Set UUID as an environment variable
+        id: set_uuid
+        run: |
+          UUID=$(uuidgen)"
+          echo "$UUID"
+          echo "::set-output name=uuid::$UUID"
       - name: Extract variables for repo
         id: extract
         uses: actions/github-script@v7
         env:
           ISSUE_PAYLOAD: ${{ steps.issue_body_parser.outputs.payload }}
+          UUID: ${{steps.set_uuid.outputs.uuid}}
         with:
           script: |
-            const { v4: uuidv4 } = require('uuid');
             const inputs = JSON.parse(process.env.ISSUE_PAYLOAD);
-            inputs.id=uuidv4()
+            inputs.id=process.env.UUID
             console.log("INPUT",inputs)
