@@ -25,11 +25,11 @@ jobs:
           issue_id: ${{ github.event.issue.number }}
           payload_marker: job-definition-yaml
           payload: yaml
-      - name: Install uuid library
-        run: npm install uuid
+      - run: npm ci
+      - run: npm install uuid
       - name: Extract variables for repo
         id: extract
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         env:
           ISSUE_PAYLOAD: ${{ steps.issue_body_parser.outputs.payload }}
         with:
