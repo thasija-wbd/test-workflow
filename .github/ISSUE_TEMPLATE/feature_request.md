@@ -8,7 +8,7 @@ assignees: ""
 
 Update the YAML properties and click "Submit new issue" to automate the creation of a new cost calculation job:
 
-```yaml job-creation-yaml
+```yaml job-definition-yaml
 apiVersion: metering.wbd.com/v1alpha1
 kind: CalculationJob
 metadata:
