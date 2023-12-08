@@ -30,27 +30,47 @@ jobs:
           CHANGED_YAML=$(git diff --name-only ${{ github.event.before }}..${{ github.sha }} -- job-definitions/**)
           CHANGED_YAML_COUNT=$(echo "$CHANGED_YAML" | wc -l)
           echo "Changed YAML files: $CHANGED_YAML_COUNT"
-          echo "Changed YAML files: $CHANGED_YAML"
-
-          # Initialize an array to store YAML contents
-          YAML_CONTENT_ARRAY=()
-
-          # Loop through changed YAML files
-          for FILE in $CHANGED_YAML; do
-            YAML_CONTENT=$(cat "$FILE")
-            YAML_CONTENT_ARRAY+=("${YAML_CONTENT} -------")
+          echo "changed yaml : $CHANGED_YAML"
+          concatenated_lines=""
+          for ((i=1; i<=CHANGED_YAML_COUNT; i++)); do
+            line=$(echo "$CHANGED_YAML" | sed -n "${i}p" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+            concatenated_lines="${concatenated_lines}${line}|"
           done
 
-          # Join array elements into a single string
-          concatenated_lines=$(IFS=$'\n'; echo "${YAML_CONTENT_ARRAY[*]}")
-
-          # Remove trailing ' -------' from the concatenated lines
-          concatenated_lines="${concatenated_lines% -------}"
-
-          # Output the concatenated lines as a JSON-encoded string
-          echo "::set-output name=changed_yaml::${{ toJSON(concatenated_lines) }}"
-
+          concatenated_lines="${concatenated_lines%|}"
+          echo "::set-output name=changed_yaml::$concatenated_lines"
       - name: calling custom-action-to-test
         uses: thasija-wbd/test-custom-action@v0.0.2
         with:
-          yaml_files: ${{ steps.detect-changed-yaml.outputs.changed_yaml }}
+          yaml_files: ${{steps.detect-changed-yaml.outputs.changed_yaml}}
+
+      # - name: Convert YAML to JSON
+      #   id: convert-yaml-to-json
+      #   run: |
+      #     JSON_FILES=()
+      #     IFS='|' read -ra files_array <<< "${{steps.detect-changed-yaml.outputs.changed_yaml}}"
+      #     for FILE in "${files_array[@]}"; do
+      #       echo "Converting $FILE to JSON..."
+      #       trimmed_file=$(echo "$FILE" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+      #       json_content=$(yq eval "$trimmed_file" -o=json)
+      #       json_file="${FILE%.yml}.json"
+      #       echo "$json_content" > "$json_file"
+      #       echo "Converted JSON content saved to $json_file"
+      #       JSON_FILES+=("$json_file")
+      #     done
+      #     echo "::set-output name=json_files::${JSON_FILES[@]}"
+
+      # - name: Echo JSON files
+      #   run: |
+      #     for JSON_FILE in ${{ steps.convert-yaml-to-json.outputs.json_files }}; do
+      #       json_content=$(cat "$JSON_FILE")
+      #       echo $json_content
+      #       id=$(echo "$json_content" | jq -r '.metadata.id')
+      #       if [ -n "$variable" ] && [ "$variable" != "null" ] && [ "$variable" != "undefined" ]; then
+      #         echo "ID is not present"
+      #       else
+      #         echo "ID is present: $id"
+      #         event_payload=$(echo "$json_content" | jq -c '{"action": "UPDATE", "payload": {"jobId": .metadata.id,"name":.metadata.name}}')
+      #         echo $event_payload
+      #       fi
+      #     done

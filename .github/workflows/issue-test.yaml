@@ -1,0 +1,36 @@
+name: Repository Generator
+
+on:
+  issues:
+    types: [opened, edited]
+
+env:
+  GITHUB_OWNER: ${{ github.repository_owner }} # used by Terraform GitHub provider to set the owner property
+
+jobs:
+  create-repo:
+    defaults:
+      run:
+        working-directory: job-definitions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Parse Issue Body
+        uses: peter-murray/issue-body-parser-action@67942e1e50c46767b9302401dce7e00c4204046e # commit SHA for tag v2.0.1
+        id: issue_body_parser
+        with:
+          github_token: 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
+          issue_id: ${{ github.event.issue.number }}
+          payload_marker: job-definition-yaml
+          payload: yaml
+      - name: Extract variables for repo
+        id: extract
+        uses: actions/github-script@v6
+        env:
+          ISSUE_PAYLOAD: ${{ steps.issue_body_parser.outputs.payload }}
+        with:
+          script: |
+            const inputs = JSON.parse(process.env.ISSUE_PAYLOAD);
+            console.log("INPUT",inputs)
