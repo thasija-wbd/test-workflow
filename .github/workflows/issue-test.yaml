@@ -40,5 +40,12 @@ jobs:
         with:
           script: |
             const inputs = JSON.parse(process.env.ISSUE_PAYLOAD);
-            inputs.id=process.env.UUID
-            console.log("INPUT",inputs)
+            inputs.metadta.id=process.env.UUID
+            core.setOutput('jsonFile',inputs)
+      - name: Convert JSON to YAML
+        id: convert_to_yaml
+        run: |
+          json_content="${{ steps.extract.output.jsonFile }}"
+          echo "${json_content}"
+          yaml_content=$(echo "$json_content" | jq -r '.' | yq eval -)
+          echo "${yaml_content}"
