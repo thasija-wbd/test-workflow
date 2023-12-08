@@ -42,10 +42,15 @@ jobs:
             const inputs = JSON.parse(process.env.ISSUE_PAYLOAD);
             inputs.metadata.id=process.env.UUID
             core.setOutput('jsonFile',inputs)
+      - name: Install jq and yq
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+          sudo snap install yq
       - name: Convert JSON to YAML
         id: convert_to_yaml
         run: |
           json_content="${{ steps.extract.outputs.jsonFile }}"
           echo "${json_content}"
-          yaml_content=$(echo "$json_content" | jq -r '.' | yq eval -)
+          yaml_content=$(echo "$json_content" | jq -r '.' | yq eval - )
           echo "${yaml_content}"
