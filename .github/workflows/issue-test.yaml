@@ -21,7 +21,7 @@ jobs:
         uses: peter-murray/issue-body-parser-action@67942e1e50c46767b9302401dce7e00c4204046e # commit SHA for tag v2.0.1
         id: issue_body_parser
         with:
-          github_token: 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
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           issue_id: ${{ github.event.issue.number }}
           payload_marker: job-definition-yaml
           payload: yaml
