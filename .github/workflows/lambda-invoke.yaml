@@ -88,7 +88,7 @@ jobs:
             done
           fi
           # Convert payload_files array to a JSON-like structure
-          payload_json=$(echo "${payload_files[@]}" | jq -s '{payload: .}')
+          payload_json=toJson({'payload':${payload_files[@]})
           echo ${payload_json}
           echo "::set-output name=payload_json::$payload_json"
 
