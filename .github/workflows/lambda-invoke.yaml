@@ -25,33 +25,54 @@ jobs:
 
       - name: List all added files
         run: |
-          for file in ${{ steps.changed-files.outputs.all_changed_and_modified_files }}; do
+          for file in ${{ steps.changed-files.outputs.added_files }}; do
            echo "$file was added"
+          for file in ${{ steps.changed-files.outputs.modified_files }}; do
+           echo "$file was modified"
           done
       - name: Transform yaml to Json
         run: |
           echo Transform files
-           for file in ${{ steps.changed-files.outputs.all_changed_and_modified_files }}; do
-             to_json=$(echo $file | sed 's/\.yaml$/.json/')
-             yq -o=json $file > "$to_json"
+          for file in ${{ steps.changed-files.outputs.added_files }}; do
+            to_json=$(echo $file | sed 's/\.yaml$/.json/')
+            yq -o=json $file > "$to_added_json"
+          echo ${to_added_json}
+          for file in ${{ steps.changed-files.outputs.modified_files }}; do
+            to_json=$(echo $file | sed 's/\.yaml$/.json/')
+            yq -o=json $file > "$to_modified_json"
+          echo ${to_modified_json}
           done
-      - name: Gather all converted json files
-        run: |
-          echo json_files=$(find "JobDefinition" -name "*.json") >> $GITHUB_ENV
+      # - name: Gather all converted json files
+      #   run: |
+      #     echo json_files=$(find "JobDefinition" -name "*.json") >> $GITHUB_ENV
 
-      - name: Convert json files to payload json
-        run: |
-          payload=$(jq '.spec + del(.spec) | 
-            {payload: .metadata} + del(.metadata) | 
-            . | {action: .kind | "CREATE"} + del(.kind) |
-            del(.apiVersion)' $json_files) && \
-          echo "$payload" > $json_files
+      # - name: Convert json files to payload json
+      #   run: |
+      #     payload=$(jq '.spec + del(.spec) |
+      #       {payload: .metadata} + del(.metadata) |
+      #       . | {action: .kind | "CREATE"} + del(.kind) |
+      #       del(.apiVersion)' $json_files) && \
+      #     echo "$payload" > $json_files
 
-      - name: Echo CREATE LAMBDA
-        if: steps.changed-files.outputs.modified_files_count != '0'
-        run: |
-          echo CREATE LAMBDA
-      - name: Echo UPDATE LAMBDA
-        if: steps.changed-files.outputs.modified_files_count == '0'
-        run: |
-          echo UPDATE LAMBDA
+      # - name: Echo CREATE LAMBDA
+      #   if: steps.changed-files.outputs.modified_files_count != '0'
+      #   run: |
+      #     echo CREATE LAMBDA
+      # - name: Echo UPDATE LAMBDA
+      #   if: steps.changed-files.outputs.modified_files_count == '0'
+      #   run: |
+      #     echo UPDATE LAMBDA
+      # - name: Configure AWS creds
+      #   uses: aws-actions/configure-aws-credentials@v3
+      #   with:
+      #     role-to-assume: arn:aws:iam::${{ inputs.account-id }}:role/github-actions-service-catalog-metering
+      #     role-session-name: deploysession
+      #     aws-region: us-east-1
+      # - name: Invoke AWS Lambda Function
+      #   if: ${{ inputs.payload == 'Clear Synchronizer execution history table' || inputs.payload == 'Clear all' }}
+      #   run: |
+      #     aws lambda invoke \
+      #     --function-name gsm-qacleanup-${{ fromJSON(steps.environment.outputs.data).environment_short_name }}-CleanUp \
+      #     --cli-binary-format raw-in-base64-out \
+      #     --payload file://payload.json \
+      #     response.json
