@@ -101,7 +101,7 @@ jobs:
           --payload "${payload_file}" \
           response.json
           done
-
+          echo '::set-output name=value::[\"a\", \"b\", \"c\"]'
       # - name: Echo CREATE LAMBDA
       #   if: steps.changed-files.outputs.modified_files_count != '0'
       #   run: |
@@ -110,12 +110,13 @@ jobs:
       #   if: steps.changed-files.outputs.modified_files_count == '0'
       #   run: |
       #     echo UPDATE LAMBDA
-      #
-      # - name: Invoke AWS Lambda Function
-      #   if: ${{ inputs.payload == 'Clear Synchronizer execution history table' || inputs.payload == 'Clear all' }}
-      #   run: |
-      #     aws lambda invoke \
-      #     --function-name gsm-qacleanup-${{ fromJSON(steps.environment.outputs.data).environment_short_name }}-CleanUp \
-      #     --cli-binary-format raw-in-base64-out \
-      #     --payload file://payload.json \
-      #     response.json
+  loopcheck:
+    needs: [checkout-step]
+    strategy:
+      matrix:
+        value: ${{fromJSON(needs.checkout-step.outputs.matrix)}}
+    runs-on: [ubuntu-latest]
+    steps:
+      - name: test
+        run: |
+          echo "${{ matrix.value }}"
