@@ -12,10 +12,10 @@ jobs:
   checkout:
     runs-on: ubuntu-latest
     outputs:
-      added-files: ${{steps.changed-files.outputs.added_files}}
-      added-files-count: ${{steps.changed-files.outputs.added_files_count}}
-      modified-files: ${{ steps.changed-files.outputs.modified_files }}
-      modified-files-count: ${{steps.changed-files.outputs.modified_files_count}}
+      added_files: ${{steps.changed-files.outputs.added_files}}
+      added_files_count: ${{steps.changed-files.outputs.added_files_count}}
+      modified_files: ${{ steps.changed-files.outputs.modified_files }}
+      modified_files_count: ${{steps.changed-files.outputs.modified_files_count}}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
