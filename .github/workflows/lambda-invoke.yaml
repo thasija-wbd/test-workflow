@@ -39,17 +39,18 @@ jobs:
           added_files=()
           modified_files=()
           for file in ${{ steps.changed-files.outputs.added_files }}; do
-          to_json=$(echo "$file" | sed 's/\.yaml$/.json/')
-          yq eval -o=json "$file" > "$to_json"
-          echo "Added: $to_json"
-          added_files+=("$to_json")
+          json_content=$(yq eval "$file" -o=json)            
+          json_file="${file%.yml}.json"
+          echo "$json_content" > "$json_file"
+          echo "Converted JSON content saved to $json_file"
+           added_files+=("$json_file")
           done
-          echo ${to_added_json}
           for file in ${{ steps.changed-files.outputs.modified_files }}; do
-          to_json=$(echo "$file" | sed 's/\.yaml$/.json/')
-          yq eval -o=json "$file" > "$to_json"
-          echo "Modified: $to_json"
-          modified_files+=("$to_json")
+           json_content=$(yq eval "$file" -o=json)            
+          json_file="${file%.yml}.json"
+          echo "$json_content" > "$json_file"
+          echo "Converted JSON content saved to $json_file"
+          modified_files+=("$json_file")
           done
           echo "::set-output name=added_json::${added_files[@]}"
           echo "::set-output name=modified_json::${modified_files[@]}"
