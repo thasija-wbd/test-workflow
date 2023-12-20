@@ -56,32 +56,25 @@ jobs:
 
       - name: Convert json files to payload json
         run: |
-          added_payload_files=()
-          modified_payload_files=()
+          payload_files=()
 
           # For added files
           for file in "${{ steps.transform-yaml-to-json.outputs.added_json }}"; do
-            added_payload=$(jq '.spec + del(.spec) |
-              {payload: .metadata} + del(.metadata) |
-              . | {action: "CREATE"}' "$file") && \
-            added_payload_file="$file.payload"
-            echo "$added_payload" > "$added_payload_file"
-            added_payload_files+=("$added_payload_file")
+            json_content=$(cat "$file")  # Fix: Read content from the current file, not a constant variable
+            event_payload=$(echo "$json_content" | jq -c '{"action": "CREATE", "payload": {"jobId": .metadata.id,"name":.metadata.name,"version":.metadata.version,"notValidAfter":.metadata.notValidAfter,"notValidBefore":.metadata.notValidBefore,"usageDataQueries":.spec.needsUsageData,"costDataQueries":.spec.costDataQueries,"calculationQuery":.spec.calculationQuery,"active":.metadata.active,"dryRun":.metadata.dryRun}}')
+            payload_files+=("$event_payload")  # Fix: Add the payload to the array
+            echo "$event_payload"  # Debugging: Print the payload
           done
+
           # For modified files
           for file in "${{ steps.transform-yaml-to-json.outputs.modified_json }}"; do
-            modified_payload=$(jq '.spec + del(.spec) |
-              {payload: .metadata} + del(.metadata) |
-              . | {action: "UPDATE"}' "$file") && \
-            modified_payload_file="$file.payload"
-            echo "$modified_payload" > "$modified_payload_file"
-            modified_payload_files+=("$modified_payload_file")
+            json_content=$(cat "$file")  # Fix: Read content from the current file, not a constant variable
+            event_payload=$(echo "$json_content" | jq -c '{"action": "UPDATE", "payload": {"jobId": .metadata.id,"name":.metadata.name,"version":.metadata.version,"notValidAfter":.metadata.notValidAfter,"notValidBefore":.metadata.notValidBefore,"usageDataQueries":.spec.needsUsageData,"costDataQueries":.spec.costDataQueries,"calculationQuery":.spec.calculationQuery,"active":.metadata.active,"dryRun":.metadata.dryRun}}')
+            payload_files+=("$event_payload")  # Fix: Add the payload to the array
+            echo "$event_payload"  # Debugging: Print the payload
           done
 
-          # Store all payload files in a single array
-          all_payload_files=("${added_payload_files[@]}" "${modified_payload_files[@]}")
-
-          echo "::set-output name=all_payload_files::${all_payload_files[@]}"
+          echo "${payload_files[@]}"  # Fix: Print all payloads in the array
 
       # - name: Echo CREATE LAMBDA
       #   if: steps.changed-files.outputs.modified_files_count != '0'
