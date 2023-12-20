@@ -92,12 +92,8 @@ jobs:
           echo "::set-output name=payload_json_array::${payload_files[@]}"
       - name: Use JSON Array Output
         run: |
-          # Extract the JSON array from the output and parse it
           my_json_array="${{ steps.parse-payload.outputs.payload_json_array }}"
-          jq -r '.[]' <<< "$my_json_array" | while read -r item; do
-          echo "Item: $item"
-          done
-
+          echo ${{ toJSON(my_json_array) }}
       # - name: Echo CREATE LAMBDA
       #   if: steps.changed-files.outputs.modified_files_count != '0'
       #   run: |
