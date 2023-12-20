@@ -16,6 +16,6 @@ jobs:
     steps:
       - name: "wow"
         run: |
-          echo $matrix
+          echo $${{ matrix }}
           echo "what"
       - run: build
