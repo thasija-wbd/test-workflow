@@ -16,6 +16,10 @@ jobs:
     steps:
       - name: "wow"
         run: |
-          echo $${{ matrix }}
+          echo $${{ matrix.include }}
+          for item in "${{ matrix.include }}"; do
+            echo "Matrix Item: $item"
+          done
+
           echo "what"
       - run: build
