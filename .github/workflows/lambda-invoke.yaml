@@ -79,7 +79,7 @@ jobs:
             echo 'UPDATED ${json_content}'
             event_payload=$(echo "$json_content" | jq -c '{"action": "UPDATE", "payload": {"jobId": .metadata.id,"name":.metadata.name,"version":.metadata.version,"notValidAfter":.metadata.notValidAfter,"notValidBefore":.metadata.notValidBefore,"usageDataQueries":.spec.needsUsageData,"costDataQueries":.spec.costDataQueries,"calculationQuery":.spec.calculationQuery,"active":.metadata.active,"dryRun":.metadata.dryRun}}')
             payload_files+=("$event_payload")
-          done <<< "${{ steps.transform-yaml-to-json.outputs.added_json }}"
+          done <<< "${{ steps.transform-yaml-to-json.outputs.modified_json }}"
 
           fi
 
