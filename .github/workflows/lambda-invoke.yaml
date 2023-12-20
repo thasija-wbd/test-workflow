@@ -58,6 +58,7 @@ jobs:
           echo "::set-output name=modified_json::${modified_files[@]}"
 
       - name: Convert json files to payload json
+        id: parse-payload
         run: |
           payload_files=()
           # For added files
@@ -88,6 +89,17 @@ jobs:
           fi
 
           echo "${payload_files[@]}"  # Print all payloads in the array
+          echo "::set-output name=payload_json_array::${payload_files[@]}"
+      - name: Use JSON Array Output
+        run: |
+          # Extract the JSON array from the output and parse it
+          my_json_array="${{ steps.parse-payload.outputs.payload_json_array }}"
+          my_array=($(echo "$my_json_array" | jq -r '.[]'))
+
+          # Iterate over the array
+          for item in "${my_array[@]}"; do
+            echo "Item: $item"
+          done
 
       # - name: Echo CREATE LAMBDA
       #   if: steps.changed-files.outputs.modified_files_count != '0'
