@@ -47,16 +47,16 @@ jobs:
           echo Transform files
           added_files=()
           modified_files=()
-          if [[ -n "${{ fromJson(needs.checkout.outputs.added_files) }}" ]]; then
-          for file in ${{ fromJson(needs.checkout.outputs.added_files) }}; do
+          if [[ -n "${{ needs.checkout.outputs.added_files }}" ]]; then
+          for file in ${{ needs.checkout.outputs.added_files }}; do
           json_content=$(yq eval "$file" -o=json)            
           json_file="${file%.yml}.json"
           echo "$json_content" > "$json_file"
           added_files+=("$json_file")
           done
           fi
-          if [[ -n "${{ fromJson(needs.checkout.outputs.modified_files) }}" ]]; then
-          for file in ${{ fromJson(needs.checkout.outputs.modified_files) }}; do
+          if [[ -n "${{ needs.checkout.outputs.modified_files }}" ]]; then
+          for file in ${{ needs.checkout.outputs.modified_files }}; do
           json_content=$(yq eval "$file" -o=json)            
           json_file="${file%.yml}.json"
           echo "$json_content" > "$json_file"
