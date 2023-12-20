@@ -43,7 +43,7 @@ jobs:
           json_content=$(yq eval "$file" -o=json)            
           json_file="${file%.yml}.json"
           echo "$json_content" > "$json_file"
-           added_files+=("$json_file")
+          added_files+=("$json_file")
           done
           fi
           if [[ -n "${{ steps.changed-files.outputs.modified_files }}" ]]; then
