@@ -61,8 +61,10 @@ jobs:
         run: |
           payload_files=()
           # For added files
+          echo ${{ steps.transform-yaml-to-json.outputs.added_json }}"
+          echo ${{ steps.transform-yaml-to-json.outputs.modified_json }}"
           if [[ -n "${{ steps.transform-yaml-to-json.outputs.added_json }}" ]]; then
-          for file in "${{ steps.transform-yaml-to-json.outputs.added_json }}"; do
+          for file in "${{ steps.transform-yaml-to-json.outputs.added_json[@] }}"; do
             echo ${file}
             json_content=$(cat "$file")
             echo 'ADDED ${json_content}'
@@ -73,13 +75,13 @@ jobs:
 
           # For modified files
           if [[ -n "${{ steps.transform-yaml-to-json.outputs.modified_json }}" ]]; then
-          while IFS= read -r file; do
+          for file in "${{ steps.transform-yaml-to-json.outputs.modified_json[@] }}"; do
             echo ${file}
             json_content=$(cat "$file")
             echo 'UPDATED ${json_content}'
             event_payload=$(echo "$json_content" | jq -c '{"action": "UPDATE", "payload": {"jobId": .metadata.id,"name":.metadata.name,"version":.metadata.version,"notValidAfter":.metadata.notValidAfter,"notValidBefore":.metadata.notValidBefore,"usageDataQueries":.spec.needsUsageData,"costDataQueries":.spec.costDataQueries,"calculationQuery":.spec.calculationQuery,"active":.metadata.active,"dryRun":.metadata.dryRun}}')
             payload_files+=("$event_payload")
-          done <<< "${{ steps.transform-yaml-to-json.outputs.modified_json }}"
+          done
 
           fi
 
