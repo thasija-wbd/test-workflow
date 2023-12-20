@@ -12,14 +12,11 @@ jobs:
     needs: job1
     runs-on: ubuntu-latest
     strategy:
-      matrix: ${{fromJson(needs.job1.outputs.matrix)}}
+      matrix:
+        test: ${{fromJson(needs.job1.outputs.matrix).include}}
     steps:
       - name: "wow"
         run: |
-          echo $${{ matrix.include }}
-          for item in "${{ matrix.include }}"; do
-            echo "Matrix Item: $item"
-          done
-
+          echo $${{ matrix.test }}
           echo "what"
       - run: build
