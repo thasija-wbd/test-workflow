@@ -90,9 +90,17 @@ jobs:
 
           echo "${payload_files[@]}"  # Print all payloads in the array
           echo "::set-output name=payload_json_array::${payload_files[@]}"
+
       - name: Use JSON Array Output
         run: |
-          echo ${{ toJSON(steps.parse-payload.outputs.payload_json_array) }}
+          # Iterate over the array of JSON files
+          for file in "${{ steps.parse-payload.outputs.payload_json_array[@] }}"; do
+            echo "Processing file: $file"
+
+            # You can use $file as the path to the JSON file in your logic
+            # For example, printing the content of the file
+            cat "$file"
+          done
       # - name: Echo CREATE LAMBDA
       #   if: steps.changed-files.outputs.modified_files_count != '0'
       #   run: |
