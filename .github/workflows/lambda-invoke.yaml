@@ -65,7 +65,8 @@ jobs:
           echo "${{ steps.transform-yaml-to-json.outputs.modified_json }}"
 
           if [[ -n "${{ steps.transform-yaml-to-json.outputs.added_json }}" ]]; then
-            for file in "${{ steps.transform-yaml-to-json.outputs.added_json }}"; do
+            IFS=' ' read -ra added_files <<< "${{ steps.transform-yaml-to-json.outputs.added_json }}"
+            for file in "${added_files[@]}"; do
               echo "${file}"
               json_content=$(cat "$file")
               echo "ADDED ${json_content}"
@@ -76,7 +77,8 @@ jobs:
 
           # For modified files
           if [[ -n "${{ steps.transform-yaml-to-json.outputs.modified_json }}" ]]; then
-            for file in "${{ steps.transform-yaml-to-json.outputs.modified_json }}"; do
+            IFS=' ' read -ra modified_files <<< "${{ steps.transform-yaml-to-json.outputs.modified_json }}"
+            for file in "${modified_files[@]}"; do       
               echo "${file}"
               json_content=$(cat "$file")
               echo "UPDATED ${json_content}"
