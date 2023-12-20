@@ -9,7 +9,7 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - id: set-matrix
-        run: echo "::set-output name=matrix::{\"include\":[{'key':'1','name':'name-1'},{'key':'2','name':'name-2'}]}"
+        run: echo "::set-output name=matrix::{\"include\":[{\"key\":\"1\",\"name\":\"name-1\"},{\"key\":\"2\",\"name\":\"name-2\"}]}"
 
   job2:
     needs: job1
@@ -21,7 +21,6 @@ jobs:
       - name: "wow"
         run: |
           echo "what"
-          input="${{ matrix.test }}"
-          echo "$input" | jq .  # Pretty-print the JSON object
-          name_value=$(echo "$input" | jq -r '.name')  
-          echo "Name: $name_value"
+          echo $${{matrix.test}}
+          input="${{ fromJson(matrix.test).name }}"
+          echo "Name: $input"
