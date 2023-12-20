@@ -60,21 +60,23 @@ jobs:
 
           # For added files
           for file in "${{ steps.transform-yaml-to-json.outputs.added_json }}"; do
-            json_content=$(cat "$file")  # Fix: Read content from the current file, not a constant variable
+            json_content=$(cat "$file")
             event_payload=$(echo "$json_content" | jq -c '{"action": "CREATE", "payload": {"jobId": .metadata.id,"name":.metadata.name,"version":.metadata.version,"notValidAfter":.metadata.notValidAfter,"notValidBefore":.metadata.notValidBefore,"usageDataQueries":.spec.needsUsageData,"costDataQueries":.spec.costDataQueries,"calculationQuery":.spec.calculationQuery,"active":.metadata.active,"dryRun":.metadata.dryRun}}')
-            payload_files+=("$event_payload")  # Fix: Add the payload to the array
-            echo "$event_payload"  # Debugging: Print the payload
+            payload_files+=("$event_payload")
+            echo "$event_payload"
           done
 
           # For modified files
           for file in "${{ steps.transform-yaml-to-json.outputs.modified_json }}"; do
-            json_content=$(cat "$file")  # Fix: Read content from the current file, not a constant variable
+            echo ${file}
+            json_content=$(cat "$file")
+            echo ${json_content}
             event_payload=$(echo "$json_content" | jq -c '{"action": "UPDATE", "payload": {"jobId": .metadata.id,"name":.metadata.name,"version":.metadata.version,"notValidAfter":.metadata.notValidAfter,"notValidBefore":.metadata.notValidBefore,"usageDataQueries":.spec.needsUsageData,"costDataQueries":.spec.costDataQueries,"calculationQuery":.spec.calculationQuery,"active":.metadata.active,"dryRun":.metadata.dryRun}}')
-            payload_files+=("$event_payload")  # Fix: Add the payload to the array
-            echo "$event_payload"  # Debugging: Print the payload
+            payload_files+=("$event_payload")
+            echo "$event_payload"
           done
 
-          echo "${payload_files[@]}"  # Fix: Print all payloads in the array
+          echo "${payload_files[@]}"  # Print all payloads in the array
 
       # - name: Echo CREATE LAMBDA
       #   if: steps.changed-files.outputs.modified_files_count != '0'
