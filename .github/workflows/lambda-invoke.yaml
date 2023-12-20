@@ -9,8 +9,13 @@ on:
 permissions: write-all
 
 jobs:
-  checkout-step:
+  checkout:
     runs-on: ubuntu-latest
+    outputs:
+      added-files: ${{steps.changed-files.outputs.added_files}}
+      added-files-count: ${{steps.changed-files.outputs.added_files_count}}
+      modified-files: ${{ steps.changed-files.outputs.modified_files }}
+      modified-files-count: ${{steps.changed-files.outputs.modified_files_count}}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,22 +37,26 @@ jobs:
           for file in ${{ steps.changed-files.outputs.modified_files }}; do
           echo "$file was modified"
           done
+  persist-job:
+    runs-on: ubuntu-latest
+    needs: [checkout]
+    steps:
       - name: Transform yaml to Json
         id: transform-yaml-to-json
         run: |
           echo Transform files
           added_files=()
           modified_files=()
-          if [[ -n "${{ steps.changed-files.outputs.added_files }}" ]]; then
-          for file in ${{ steps.changed-files.outputs.added_files }}; do
+          if [[ -n "${{ needs.checkout.outputs.added_files }}" ]]; then
+          for file in ${{ needs.checkout.outputs.added_files }}; do
           json_content=$(yq eval "$file" -o=json)            
           json_file="${file%.yml}.json"
           echo "$json_content" > "$json_file"
           added_files+=("$json_file")
           done
           fi
-          if [[ -n "${{ steps.changed-files.outputs.modified_files }}" ]]; then
-          for file in ${{ steps.changed-files.outputs.modified_files }}; do
+          if [[ -n "${{ needs.checkout.outputs.modified_files }}" ]]; then
+          for file in ${{ needs.checkout.outputs.modified_files }}; do
           json_content=$(yq eval "$file" -o=json)            
           json_file="${file%.yml}.json"
           echo "$json_content" > "$json_file"
@@ -102,21 +111,3 @@ jobs:
           response.json
           done
           echo '::set-output name=value::[\"a\", \"b\", \"c\"]'
-      # - name: Echo CREATE LAMBDA
-      #   if: steps.changed-files.outputs.modified_files_count != '0'
-      #   run: |
-      #     echo CREATE LAMBDA
-      # - name: Echo UPDATE LAMBDA
-      #   if: steps.changed-files.outputs.modified_files_count == '0'
-      #   run: |
-      #     echo UPDATE LAMBDA
-  loopcheck:
-    needs: [checkout-step]
-    strategy:
-      matrix:
-        value: ${{fromJSON(needs.checkout-step.outputs.matrix)}}
-    runs-on: [ubuntu-latest]
-    steps:
-      - name: test
-        run: |
-          echo "${{ matrix.value }}"
