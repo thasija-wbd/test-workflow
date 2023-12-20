@@ -59,7 +59,7 @@ jobs:
       - name: Configure AWS creds
         uses: aws-actions/configure-aws-credentials@v3
         with:
-          role-to-assume: arn:aws:iam::076787413861:role/test-role
+          role-to-assume: arn:aws:iam::076787413861:role/test-iam
           role-session-name: deploysession
           aws-region: us-east-1
 
