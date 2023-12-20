@@ -92,8 +92,7 @@ jobs:
           echo "::set-output name=payload_json_array::${payload_files[@]}"
       - name: Use JSON Array Output
         run: |
-          my_json_array="${{ steps.parse-payload.outputs.payload_json_array }}"
-          echo ${{ toJSON(my_json_array) }}
+          echo ${{ toJSON(steps.parse-payload.outputs.payload_json_array) }}
       # - name: Echo CREATE LAMBDA
       #   if: steps.changed-files.outputs.modified_files_count != '0'
       #   run: |
