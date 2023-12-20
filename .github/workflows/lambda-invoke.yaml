@@ -94,8 +94,8 @@ jobs:
 
       - name: Use JSON Array Output
         run: |
-          payload_json="${{ steps.parse-payload.outputs.payload_json }}"
-          payload_array=($(echo "$payload_json" | jq -r '.payload[]'))
+          payload_array="${{ fromJson(steps.parse-payload.outputs.payload_json) }}"
+          echo ${payload_array}
           for item in "${payload_array[@]}"; do
            echo "Item: $item"
           done
