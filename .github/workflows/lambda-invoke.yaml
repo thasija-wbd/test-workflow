@@ -94,7 +94,7 @@ jobs:
       - name: Use JSON Array Output
         run: |
           # Iterate over the array of JSON files
-          for file in "${{ steps.parse-payload.outputs.payload_json_array[@] }}"; do
+          for file in "${{ steps.parse-payload.outputs.payload_json_array }}"; do
             echo "Processing file: $file"
 
             # You can use $file as the path to the JSON file in your logic
