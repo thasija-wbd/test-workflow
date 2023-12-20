@@ -94,11 +94,11 @@ jobs:
             done
           fi
           # API CALL
-          for payload in ${payload_files}; do 
-           aws lambda invoke \ 
-          --function-name metering-calculation-workflow-jobPersister \
-          --payload $payload \
-           response.json
+          for payload_file in "${payload_files[@]}"; do
+          aws lambda invoke \
+          --function-name test-function \
+          --payload file://"${payload_file}" \
+          response.json
           done
 
       # - name: Echo CREATE LAMBDA
