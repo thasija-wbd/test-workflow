@@ -25,11 +25,11 @@ jobs:
 
       - name: List all added files
         run: |
-          for file in job-definitions/new1.yaml; do
+          for file in ${{steps.changed-files.outputs.added_files}}; do
           echo "$file was added"
           done
 
-          for file in job-definitions/example.yaml; do
+          for file in ${{ steps.changed-files.outputs.modified_files }}; do
           echo "$file was modified"
           done
       - name: Transform yaml to Json
@@ -38,14 +38,18 @@ jobs:
           echo Transform files
           added_files=()
           modified_files=()
+          if [[ -n "${{ steps.transform-yaml-to-json.outputs.added_files }}" ]]; then
+
           for file in ${{ steps.changed-files.outputs.added_files }}; do
           json_content=$(yq eval "$file" -o=json)            
           json_file="${file%.yml}.json"
           echo "$json_content" > "$json_file"
            added_files+=("$json_file")
           done
+          fi
+          if [[ -n "${{ steps.transform-yaml-to-json.outputs.modified_files }}" ]]; then
           for file in ${{ steps.changed-files.outputs.modified_files }}; do
-           json_content=$(yq eval "$file" -o=json)            
+          json_content=$(yq eval "$file" -o=json)            
           json_file="${file%.yml}.json"
           echo "$json_content" > "$json_file"
           modified_files+=("$json_file")
@@ -57,14 +61,18 @@ jobs:
         run: |
           payload_files=()
           # For added files
+          if [[ -n "${{ steps.transform-yaml-to-json.outputs.added_json }}" ]]; then
           for file in "${{ steps.transform-yaml-to-json.outputs.added_json }}"; do
+            echo ${file}
             json_content=$(cat "$file")
             echo 'ADDED ${json_content}'
             event_payload=$(echo "$json_content" | jq -c '{"action": "CREATE", "payload": {"jobId": .metadata.id,"name":.metadata.name,"version":.metadata.version,"notValidAfter":.metadata.notValidAfter,"notValidBefore":.metadata.notValidBefore,"usageDataQueries":.spec.needsUsageData,"costDataQueries":.spec.costDataQueries,"calculationQuery":.spec.calculationQuery,"active":.metadata.active,"dryRun":.metadata.dryRun}}')
             payload_files+=("$event_payload")
           done
+          fi
 
           # For modified files
+          if [[ -n "${{ steps.transform-yaml-to-json.outputs.modified_json }}" ]]; then
           for file in "${{ steps.transform-yaml-to-json.outputs.modified_json }}"; do
             echo ${file}
             json_content=$(cat "$file")
@@ -72,6 +80,7 @@ jobs:
             event_payload=$(echo "$json_content" | jq -c '{"action": "UPDATE", "payload": {"jobId": .metadata.id,"name":.metadata.name,"version":.metadata.version,"notValidAfter":.metadata.notValidAfter,"notValidBefore":.metadata.notValidBefore,"usageDataQueries":.spec.needsUsageData,"costDataQueries":.spec.costDataQueries,"calculationQuery":.spec.calculationQuery,"active":.metadata.active,"dryRun":.metadata.dryRun}}')
             payload_files+=("$event_payload")
           done
+          fi
 
           echo "${payload_files[@]}"  # Print all payloads in the array
 
