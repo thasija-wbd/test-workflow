@@ -33,6 +33,7 @@ jobs:
           echo "$file was modified"
           done
       - name: Transform yaml to Json
+        id: transform-yaml-to-json
         run: |
           echo Transform files
           added_files=()
@@ -50,17 +51,37 @@ jobs:
           echo "Modified: $to_json"
           modified_files+=("$to_json")
           done
-      # - name: Gather all converted json files
-      #   run: |
-      #     echo json_files=$(find "JobDefinition" -name "*.json") >> $GITHUB_ENV
+          echo "::set-output name=added_json::${added_files[@]}"
+          echo "::set-output name=modified_json::${modified_files[@]}"
 
-      # - name: Convert json files to payload json
-      #   run: |
-      #     payload=$(jq '.spec + del(.spec) |
-      #       {payload: .metadata} + del(.metadata) |
-      #       . | {action: .kind | "CREATE"} + del(.kind) |
-      #       del(.apiVersion)' $json_files) && \
-      #     echo "$payload" > $json_files
+      - name: Convert json files to payload json
+        run: |
+          added_payload_files=()
+          modified_payload_files=()
+
+          # For added files
+          for file in "${{ steps.transform_json.outputs.added_json }}"; do
+            added_payload=$(jq '.spec + del(.spec) |
+              {payload: .metadata} + del(.metadata) |
+              . | {action: "CREATE"}' "$file") && \
+            added_payload_file="$file.payload"
+            echo "$added_payload" > "$added_payload_file"
+            added_payload_files+=("$added_payload_file")
+          done
+          # For modified files
+          for file in "${{ steps.transform_json.outputs.modified_json }}"; do
+            modified_payload=$(jq '.spec + del(.spec) |
+              {payload: .metadata} + del(.metadata) |
+              . | {action: "UPDATE"}' "$file") && \
+            modified_payload_file="$file.payload"
+            echo "$modified_payload" > "$modified_payload_file"
+            modified_payload_files+=("$modified_payload_file")
+          done
+
+          # Store all payload files in a single array
+          all_payload_files=("${added_payload_files[@]}" "${modified_payload_files[@]}")
+
+          echo "::set-output name=all_payload_files::${all_payload_files[@]}"
 
       # - name: Echo CREATE LAMBDA
       #   if: steps.changed-files.outputs.modified_files_count != '0'
