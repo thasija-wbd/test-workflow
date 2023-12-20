@@ -17,5 +17,6 @@ jobs:
     steps:
       - name: "wow"
         run: |
-          echo $${{fromJson(matrix.test).name }}
           echo "what"
+          echo $${{matrix.test}}
+          echo $${{matrix.test.name }}
