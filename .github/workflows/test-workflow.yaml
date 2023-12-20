@@ -18,6 +18,6 @@ jobs:
       - name: "wow"
         run: |
           echo "what"
-          echo $${{matrix.test}}
-          name=$${{matrix.test.name }}
-          echo $name
+          input=$${{matrix.test}}
+          echo $input
+          echo $input.name
