@@ -38,8 +38,7 @@ jobs:
           echo Transform files
           added_files=()
           modified_files=()
-          if [[ -n "${{ steps.transform-yaml-to-json.outputs.added_files }}" ]]; then
-
+          if [[ -n "${{ steps.changed-files.outputs.added_files }}" ]]; then
           for file in ${{ steps.changed-files.outputs.added_files }}; do
           json_content=$(yq eval "$file" -o=json)            
           json_file="${file%.yml}.json"
@@ -47,7 +46,7 @@ jobs:
            added_files+=("$json_file")
           done
           fi
-          if [[ -n "${{ steps.transform-yaml-to-json.outputs.modified_files }}" ]]; then
+          if [[ -n "${{ steps.changed-files.outputs.modified_files }}" ]]; then
           for file in ${{ steps.changed-files.outputs.modified_files }}; do
           json_content=$(yq eval "$file" -o=json)            
           json_file="${file%.yml}.json"
