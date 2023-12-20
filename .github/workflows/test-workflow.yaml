@@ -22,5 +22,6 @@ jobs:
         run: |
           echo "what"
           input="${{ matrix.test }}"
-          echo "$input"
-          echo "${input[0].name}"  # Access the first element of the array
+          echo "$input" | jq .  # Pretty-print the JSON object
+          name_value=$(echo "$input" | jq -r '.name')  
+          echo "Name: $name_value"
