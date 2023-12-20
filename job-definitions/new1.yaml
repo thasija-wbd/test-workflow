@@ -10,7 +10,7 @@ metadata:
   dryRun: false
   needUsageData: true
   active: true
-  notValidBefore: "2023-11-11 00:00:0"
+  notValidBefore: "2023-11-11 00:00:00"
   notValidAfter: "2023-12-11 00:00:12"
 spec:
   usageDataQueries:

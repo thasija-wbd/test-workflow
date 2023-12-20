@@ -25,21 +25,24 @@ jobs:
 
       - name: List all added files
         run: |
-          for file in ${{ steps.changed-files.outputs.added_files }}; do
-           echo "$file was added"
-          for file in ${{ steps.changed-files.outputs.modified_files }}; do
-           echo "$file was modified"
+          for file in job-definitions/new1.yaml; do
+          echo "$file was added"
+          done
+
+          for file in job-definitions/example.yaml; do
+          echo "$file was modified"
           done
       - name: Transform yaml to Json
         run: |
           echo Transform files
           for file in ${{ steps.changed-files.outputs.added_files }}; do
-            to_json=$(echo $file | sed 's/\.yaml$/.json/')
-            yq -o=json $file > "$to_added_json"
+          to_json=$(echo $file | sed 's/\.yaml$/.json/')
+          yq -o=json $file > "$to_added_json"
+          done
           echo ${to_added_json}
           for file in ${{ steps.changed-files.outputs.modified_files }}; do
-            to_json=$(echo $file | sed 's/\.yaml$/.json/')
-            yq -o=json $file > "$to_modified_json"
+          to_json=$(echo $file | sed 's/\.yaml$/.json/')
+          yq -o=json $file > "$to_modified_json"
           echo ${to_modified_json}
           done
       # - name: Gather all converted json files
