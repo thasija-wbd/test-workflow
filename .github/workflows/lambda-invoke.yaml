@@ -97,7 +97,8 @@ jobs:
           for payload_file in "${payload_files[@]}"; do
           aws lambda invoke \
           --function-name test-function \
-          --payload file://"${payload_file}" \
+          --cli-binary-format raw-in-base64-out \
+          --payload "${payload_file}" \
           response.json
           done
 
