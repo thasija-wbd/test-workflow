@@ -1,0 +1,57 @@
+name: Lamda invoke Job
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - job-definitions/**
+permissions: write-all
+
+jobs:
+  checkout-step:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v40
+        with:
+          files: job-definitions/**
+
+      - name: List all added files
+        run: |
+          for file in ${{ steps.changed-files.outputs.all_changed_and_modified_files }}; do
+           echo "$file was added"
+          done
+      - name: Transform yaml to Json
+        run: |
+          echo Transform files
+           for file in ${{ steps.changed-files.outputs.all_changed_and_modified_files }}; do
+             to_json=$(echo $file | sed 's/\.yaml$/.json/')
+             yq -o=json $file > "$to_json"
+          done
+      - name: Gather all converted json files
+        run: |
+          echo json_files=$(find "JobDefinition" -name "*.json") >> $GITHUB_ENV
+
+      - name: Convert json files to payload json
+        run: |
+          payload=$(jq '.spec + del(.spec) | 
+            {payload: .metadata} + del(.metadata) | 
+            . | {action: .kind | "CREATE"} + del(.kind) |
+            del(.apiVersion)' $json_files) && \
+          echo "$payload" > $json_files
+
+      - name: Echo CREATE LAMBDA
+        if: steps.changed-files.outputs.modified_files_count != '0'
+        run: |
+          echo CREATE LAMBDA
+      - name: Echo UPDATE LAMBDA
+        if: steps.changed-files.outputs.modified_files_count == '0'
+        run: |
+          echo UPDATE LAMBDA

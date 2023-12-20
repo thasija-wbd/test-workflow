@@ -1,7 +1,7 @@
 apiVersion: metering.wbd.com/v1alpha1
 kind: CalculationJob
 metadata:
-  name: example-change-calulation
+  name: new-yaml
   description: cost-calculator123
   team: team-name
   id: 14a743e5-85f9-49d9-9371-823de7002a8e
