@@ -87,19 +87,17 @@ jobs:
               payload_files+=("$event_payload")
             done
           fi
-
-          echo "${payload_files[@]}"  # Print all payloads in the array
-          echo "::set-output name=payload_json_array::${payload_files[@]}"
+          # Convert payload_files array to a JSON-like structure
+          payload_json=$(echo "${payload_files[@]}" | jq -s '{payload: .}')
+          echo ${payload_json}
+          echo "::set-output name=payload_json::$payload_json"
 
       - name: Use JSON Array Output
         run: |
-          # Iterate over the array of JSON files
-          for file in "${{ steps.parse-payload.outputs.payload_json_array }}"; do
-            echo "Processing file: $file"
-
-            # You can use $file as the path to the JSON file in your logic
-            # For example, printing the content of the file
-            cat "$file"
+          payload_json="${{ steps.parse-payload.outputs.payload_json }}"
+          payload_array=($(echo "$payload_json" | jq -r '.payload[]'))
+          for item in "${payload_array[@]}"; do
+           echo "Item: $item"
           done
       # - name: Echo CREATE LAMBDA
       #   if: steps.changed-files.outputs.modified_files_count != '0'
