@@ -21,7 +21,7 @@ spec:
         base_result AS(
           SELECT 
             DATEDIFF(minute,LINE_ITEM_USAGE_START_DATE,LINE_ITEM_USAGE_END_DATE) as dd,
-            (dd /60) as hours_involved,LINE_ITEM_PRODUCT_CODE,LINE_ITEM_BLENDED_COST,
+            (dd /60) as hours_inv-1olved,LINE_ITEM_PRODUCT_CODE,LINE_ITEM_BLENDED_COST,
             (LINE_ITEM_BLENDED_COST / hours_involved) as hourly_cost,
             IFNULL(RESOURCE_TAGS_USER_OMD_BUSINESS_SERVICE,'_unknown') as business_service,
             IFNULL(RESOURCE_TAGS_USER_OMD_COMPONENT,'_unknown') as component,
