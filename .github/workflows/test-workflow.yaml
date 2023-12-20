@@ -19,4 +19,5 @@ jobs:
         run: |
           echo "what"
           echo $${{matrix.test}}
-          echo $${{matrix.test.name }}
+          name=$${{matrix.test.name }}
+          echo $name
