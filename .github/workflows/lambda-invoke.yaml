@@ -94,7 +94,7 @@ jobs:
         run: |
           # Extract the JSON array from the output and parse it
           my_json_array="${{ steps.parse-payload.outputs.payload_json_array }}"
-          echo "$my_json_array" | jq -r '.[]' | while read -r item; do
+          jq -r '.[]' <<< "$my_json_array" | while read -r item; do
           echo "Item: $item"
           done
 
