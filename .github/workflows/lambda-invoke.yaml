@@ -60,7 +60,7 @@ jobs:
           modified_payload_files=()
 
           # For added files
-          for file in "${{ steps.transform_json.outputs.added_json }}"; do
+          for file in "${{ steps.transform-yaml-to-json.outputs.added_json }}"; do
             added_payload=$(jq '.spec + del(.spec) |
               {payload: .metadata} + del(.metadata) |
               . | {action: "CREATE"}' "$file") && \
@@ -69,7 +69,7 @@ jobs:
             added_payload_files+=("$added_payload_file")
           done
           # For modified files
-          for file in "${{ steps.transform_json.outputs.modified_json }}"; do
+          for file in "${{ steps.transform-yaml-to-json.outputs.modified_json }}"; do
             modified_payload=$(jq '.spec + del(.spec) |
               {payload: .metadata} + del(.metadata) |
               . | {action: "UPDATE"}' "$file") && \

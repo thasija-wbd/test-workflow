@@ -1,2 +1,0 @@
-apiVersion: metering.wbd.com/v1alpha1
-kind: CalculationJob
