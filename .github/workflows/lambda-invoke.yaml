@@ -61,6 +61,7 @@ jobs:
             --arg ap "$added_payload" \
             --arg mp "$modified_payload" \
             '{payload: [$ap,$mp]}' )
+          echo ${payload}
           echo "::set-output name=payload_json::$payload"
 
   persist-job:
