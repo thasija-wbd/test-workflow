@@ -41,26 +41,28 @@ jobs:
       - name: Create JSON payload
         id: create-json
         run: |
-          added_files=${{ steps.changed-files.outputs.added_files }}
-          modified_files= ${{ steps.changed-files.outputs.modified_files }}
-          added_files_count= ${{steps.changed-files.outputs.added_files_count}}
-          modified_files_count= ${{steps.changed-files.outputs.modified_files_count}}
+          added_files="${{ steps.changed-files.outputs.added_files }}"
+          modified_files="${{ steps.changed-files.outputs.modified_files }}"
+          added_files_count="${{ steps.changed-files.outputs.added_files_count }}"
+          modified_files_count="${{ steps.changed-files.outputs.modified_files_count }}"
 
+          added_payload=$( jq -n \
+                  --arg af "$added_files" \
+                  --arg afc "$added_files_count" \
+                  --arg ac "CREATE" \
+                  '{files: $af, count: $afc, action: $ac}' )
+          modified_payload=$( jq -n \
+                  --arg af "$modified_files" \
+                  --arg afc "$modified_files_count" \
+                  --arg ac "UPDATE" \
+                  '{files: $af, count: $afc, action: $ac}' )
 
-          # Create JSON structure
-          payload='{"payload": ['
-
-          # For added files
-          payload+='{"files": '"$(jq -n --argjson files "$added_files" -c '$files')"', "count": '"${added_files_count}"', "type": "CREATE"},'
-
-          # For modified files
-          payload+='{"files": '"$(jq -n --argjson files "$modified_files" -c '$files')"', "count": '"${modified_files_count}"', "type": "MODIFY"}'
-
-          # Close JSON structure
-          payload+=']}'
-
-          # Set the output
+          payload=$( jq -n \
+            --arg ap "$added_payload" \
+            --arg mp "$modified_payload" \
+            '{payload: [$ap,$mp]}' )
           echo "::set-output name=payload_json::$payload"
+
   persist-job:
     runs-on: ubuntu-latest
     needs: [checkout]
