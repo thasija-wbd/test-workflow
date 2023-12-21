@@ -63,17 +63,15 @@ jobs:
           echo $MATRIX
           echo $FILES
           echo $ACTION
-          parsed_json_files=()
-          IFS=' ' read -ra new_files <<< "$FILES"
+          files=()
+          for file in $FILES; do
+             to_json=$(echo $file | sed 's/\.yaml$/.json/')
+             yq -o=json $file > "$to_json"
+             files+=("$to_json")
 
-          for file in "${new_files[@]}"; do
-          json_content=$(yq eval "$file" -o=json)            
-          json_file="${file%.yml}.json"
-          echo "$json_content" > "$json_file"
-          parsed_json_files+=("$json_file")
           done
-          echo $parsed_json_files
-          echo "::set-output name=json_file::${parsed_json_files[@]}"
+          echo $files
+          echo "::set-output name=json_file::${files[@]}"
       # - name: Configure AWS creds
       #   uses: aws-actions/configure-aws-credentials@v3
       #   with:
