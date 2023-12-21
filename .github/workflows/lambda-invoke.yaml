@@ -46,22 +46,19 @@ jobs:
           added_files_count="${{ steps.changed-files.outputs.added_files_count }}"
           modified_files_count="${{ steps.changed-files.outputs.modified_files_count }}"
 
-          added_payload=$( jq -n \
-                  --arg af "$added_files" \
-                  --arg afc "$added_files_count" \
-                  --arg ac "CREATE" \
-                  '{files: $af, count: $afc, action: $ac}' )
-          modified_payload=$( jq -n \
-                  --arg af "$modified_files" \
-                  --arg afc "$modified_files_count" \
-                  --arg ac "UPDATE" \
-                  '{files: $af, count: $afc, action: $ac}' )
+          # Create JSON structure
+          payload='{"payload": ['
 
-          payload=$( jq -n \
-            --arg ap "$added_payload" \
-            --arg mp "$modified_payload" \
-            '{"payload": [$ap,$mp]}' )
-          echo ${payload}
+          # For added files
+          payload+="{\"files\": \"$added_files\", \"count\": \"$added_files_count\", \"action\": \"CREATE\"},"
+
+          # For modified files
+          payload+="{\"files\": \"$modified_files\", \"count\": \"$modified_files_count\", \"action\": \"UPDATE\"}"
+
+          # Close JSON structure
+          payload+=']}'
+
+          # Set the output
           echo "::set-output name=payload_json::$payload"
 
   persist-job:
