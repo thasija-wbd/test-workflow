@@ -51,6 +51,10 @@ jobs:
       matrix:
         include: ${{fromJson(needs.checkout.outputs.payload_json).payload}}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
       - name: Transform yaml to Json
         env:
           MATRIX: ${{ toJSON(matrix) }}
