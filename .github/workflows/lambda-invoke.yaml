@@ -66,9 +66,8 @@ jobs:
           files=()
           for FILE in $FILES; do
             trimmed_file=$(echo "$FILE" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-            json_content=$(yq eval "$trimmed_file" -o=json)            
             json_file="${FILE%.yml}.json"
-            echo "$json_content" > "$json_file"
+            yq -o=json "$trimmed_file" > "$json_file"
             echo "Converted JSON content saved to $json_file"
             files+=("$json_file")
 
