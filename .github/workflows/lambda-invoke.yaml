@@ -64,10 +64,13 @@ jobs:
           echo $FILES
           echo $ACTION
           files=()
-          for file in $FILES; do
-             to_json=$(echo $file | sed 's/\.yaml$/.json/')
-             yq -o=json $file > "$to_json"
-             files+=("$to_json")
+          for FILE in $FILES; do
+            trimmed_file=$(echo "$FILE" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+            json_content=$(yq eval "$trimmed_file" -o=json)            
+            json_file="${FILE%.yml}.json"
+            echo "$json_content" > "$json_file"
+            echo "Converted JSON content saved to $json_file"
+            files+=("$json_file")
 
           done
           echo $files
