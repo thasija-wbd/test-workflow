@@ -81,6 +81,8 @@ jobs:
           echo $files
           echo "::set-output name=json_files::${files[@]}"
       - name: Convert json files to payload json
+        env:
+          ACTION: ${{fromJSON(toJSON(matrix)).action}}
         id: parse-payload
         run: |
           payload_files=()
@@ -90,9 +92,8 @@ jobs:
             for file in "${updated_files[@]}"; do
               echo "${file}"
               json_content=$(cat "$file")
-              action_type= "${{fromJSON(toJSON(matrix)).action}}"
-              echo ${action_type}
-              event_payload=$(echo "$json_content" | jq -c '{"action": "CREATE", "payload": {"jobId": .metadata.id,"name":.metadata.name,"version":.metadata.version,"notValidAfter":.metadata.notValidAfter,"notValidBefore":.metadata.notValidBefore,"usageDataQueries":.spec.needsUsageData,"costDataQueries":.spec.costDataQueries,"calculationQuery":.spec.calculationQuery,"active":.metadata.active,"dryRun":.metadata.dryRun}}')
+              echo $ACTION
+              event_payload=$(echo "$json_content" | jq -c '{"action": "$ACTION", "payload": {"jobId": .metadata.id,"name":.metadata.name,"version":.metadata.version,"notValidAfter":.metadata.notValidAfter,"notValidBefore":.metadata.notValidBefore,"usageDataQueries":.spec.needsUsageData,"costDataQueries":.spec.costDataQueries,"calculationQuery":.spec.calculationQuery,"active":.metadata.active,"dryRun":.metadata.dryRun}}')
               payload_files+=("$event_payload")
             done
           fi
