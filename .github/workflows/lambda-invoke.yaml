@@ -12,29 +12,22 @@ jobs:
   checkout:
     runs-on: ubuntu-latest
     outputs:
-      added_files: ${{steps.changed-files.outputs.added_files}}
-      added_files_count: ${{steps.changed-files.outputs.added_files_count}}
-      modified_files: ${{ steps.changed-files.outputs.modified_files }}
-      modified_files_count: ${{steps.changed-files.outputs.modified_files_count}}
       payload_json: ${{steps.create-json.outputs.payload_json}}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 2
-
       - name: Get changed files
         id: changed-files
         uses: tj-actions/changed-files@v40
         with:
           files: job-definitions/**
-
       - name: List all added files
         run: |
           for file in ${{steps.changed-files.outputs.added_files}}; do
           echo "$file was added"
           done
-
           for file in ${{ steps.changed-files.outputs.modified_files }}; do
           echo "$file was modified"
           done
@@ -45,20 +38,10 @@ jobs:
           modified_files="${{ steps.changed-files.outputs.modified_files }}"
           added_files_count="${{ steps.changed-files.outputs.added_files_count }}"
           modified_files_count="${{ steps.changed-files.outputs.modified_files_count }}"
-
-          # Create JSON structure
           payload='{"payload": ['
-
-          # For added files
           payload+="{\"files\": \"$added_files\", \"count\": \"$added_files_count\", \"action\": \"CREATE\"},"
-
-          # For modified files
           payload+="{\"files\": \"$modified_files\", \"count\": \"$modified_files_count\", \"action\": \"UPDATE\"}"
-
-          # Close JSON structure
           payload+=']}'
-
-          # Set the output
           echo "::set-output name=payload_json::$payload"
 
   persist-job:
@@ -70,71 +53,61 @@ jobs:
     steps:
       - name: Transform yaml to Json
         id: transform-yaml-to-json
+        if: ${{matrix.payload.count}} > 0
         run: |
           echo Transform files
-          added_files=()
-          modified_files=()
-          if [[ -n "${{ needs.checkout.outputs.added_files }}" ]]; then
-          for file in ${{ needs.checkout.outputs.added_files }}; do
+          files=()
+          for file in ${{ fromJson(matrix.payload).files }}; do
           json_content=$(yq eval "$file" -o=json)            
           json_file="${file%.yml}.json"
           echo "$json_content" > "$json_file"
-          added_files+=("$json_file")
+          files+=("$json_file")
           done
-          fi
-          if [[ -n "${{ needs.checkout.outputs.modified_files }}" ]]; then
-          for file in ${{ needs.checkout.outputs.modified_files }}; do
-          json_content=$(yq eval "$file" -o=json)            
-          json_file="${file%.yml}.json"
-          echo "$json_content" > "$json_file"
-          modified_files+=("$json_file")
-          done
-          fi
-          echo "::set-output name=added_json::${added_files[@]}"
-          echo "::set-output name=modified_json::${modified_files[@]}"
-      - name: Configure AWS creds
-        uses: aws-actions/configure-aws-credentials@v3
-        with:
-          role-to-assume: arn:aws:iam::076787413861:role/test-iam
-          role-session-name: deploysession
-          aws-region: us-east-1
+          echo $files
+          echo "::set-output name=json_file::${files[@]}"
+      # - name: Configure AWS creds
+      #   uses: aws-actions/configure-aws-credentials@v3
+      #   with:
+      #     role-to-assume: arn:aws:iam::076787413861:role/test-iam
+      #     role-session-name: deploysession
+      #     aws-region: us-east-1
 
-      - name: Convert json files to payload json
-        id: parse-payload
-        run: |
-          payload_files=()
-          # For added files
-          echo "${{ steps.transform-yaml-to-json.outputs.added_json }}"
-          echo "${{ steps.transform-yaml-to-json.outputs.modified_json }}"
+      # - name: Convert json files to payload json
+      #   id: parse-payload
+      #   run: |
+      #     payload_files=()
+      #     # For added files
+      #     echo "${{ steps.transform-yaml-to-json.outputs.added_json }}"
+      #     echo "${{ steps.transform-yaml-to-json.outputs.modified_json }}"
 
-          if [[ -n "${{ steps.transform-yaml-to-json.outputs.added_json }}" ]]; then
-            IFS=' ' read -ra added_files <<< "${{ steps.transform-yaml-to-json.outputs.added_json }}"
-            for file in "${added_files[@]}"; do
-              echo "${file}"
-              json_content=$(cat "$file")
-              echo "ADDED ${json_content}"
-              event_payload=$(echo "$json_content" | jq -c '{"action": "CREATE", "payload": {"jobId": .metadata.id,"name":.metadata.name,"version":.metadata.version,"notValidAfter":.metadata.notValidAfter,"notValidBefore":.metadata.notValidBefore,"usageDataQueries":.spec.needsUsageData,"costDataQueries":.spec.costDataQueries,"calculationQuery":.spec.calculationQuery,"active":.metadata.active,"dryRun":.metadata.dryRun}}')
-              payload_files+=("$event_payload")
-            done
-          fi
+      #     if [[ -n "${{ steps.transform-yaml-to-json.outputs.added_json }}" ]]; then
+      #       IFS=' ' read -ra added_files <<< "${{ steps.transform-yaml-to-json.outputs.added_json }}"
+      #       for file in "${added_files[@]}"; do
+      #         echo "${file}"
+      #         json_content=$(cat "$file")
+      #         echo "ADDED ${json_content}"
+      #         event_payload=$(echo "$json_content" | jq -c '{"action": "CREATE", "payload": {"jobId": .metadata.id,"name":.metadata.name,"version":.metadata.version,"notValidAfter":.metadata.notValidAfter,"notValidBefore":.metadata.notValidBefore,"usageDataQueries":.spec.needsUsageData,"costDataQueries":.spec.costDataQueries,"calculationQuery":.spec.calculationQuery,"active":.metadata.active,"dryRun":.metadata.dryRun}}')
+      #         payload_files+=("$event_payload")
+      #       done
+      #     fi
 
-          # For modified files
-          if [[ -n "${{ steps.transform-yaml-to-json.outputs.modified_json }}" ]]; then
-            IFS=' ' read -ra modified_files <<< "${{ steps.transform-yaml-to-json.outputs.modified_json }}"
-            for file in "${modified_files[@]}"; do       
-              echo "${file}"
-              json_content=$(cat "$file")
-              echo "UPDATED ${json_content}"
-              event_payload=$(echo "$json_content" | jq -c '{"action": "UPDATE", "payload": {"jobId": .metadata.id,"name":.metadata.name,"version":.metadata.version,"notValidAfter":.metadata.notValidAfter,"notValidBefore":.metadata.notValidBefore,"usageDataQueries":.spec.needsUsageData,"costDataQueries":.spec.costDataQueries,"calculationQuery":.spec.calculationQuery,"active":.metadata.active,"dryRun":.metadata.dryRun}}')
-              payload_files+=("$event_payload")
-            done
-          fi
-          # API CALL
-          for payload_file in "${payload_files[@]}"; do
-          aws lambda invoke \
-          --function-name test-function \
-          --cli-binary-format raw-in-base64-out \
-          --payload "${payload_file}" \
-          response.json
-          done
-          echo '::set-output name=value::[\"a\", \"b\", \"c\"]'
+      #     # For modified files
+      #     if [[ -n "${{ steps.transform-yaml-to-json.outputs.modified_json }}" ]]; then
+      #       IFS=' ' read -ra modified_files <<< "${{ steps.transform-yaml-to-json.outputs.modified_json }}"
+      #       for file in "${modified_files[@]}"; do
+      #         echo "${file}"
+      #         json_content=$(cat "$file")
+      #         echo "UPDATED ${json_content}"
+      #         event_payload=$(echo "$json_content" | jq -c '{"action": "UPDATE", "payload": {"jobId": .metadata.id,"name":.metadata.name,"version":.metadata.version,"notValidAfter":.metadata.notValidAfter,"notValidBefore":.metadata.notValidBefore,"usageDataQueries":.spec.needsUsageData,"costDataQueries":.spec.costDataQueries,"calculationQuery":.spec.calculationQuery,"active":.metadata.active,"dryRun":.metadata.dryRun}}')
+      #         payload_files+=("$event_payload")
+      #       done
+      #     fi
+      #     # API CALL
+      #     for payload_file in "${payload_files[@]}"; do
+      #     aws lambda invoke \
+      #     --function-name test-function \
+      #     --cli-binary-format raw-in-base64-out \
+      #     --payload "${payload_file}" \
+      #     response.json
+      #     done
+      #     echo '::set-output name=value::[\"a\", \"b\", \"c\"]'
