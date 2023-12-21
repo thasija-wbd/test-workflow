@@ -49,15 +49,22 @@ jobs:
     needs: [checkout]
     strategy:
       matrix:
-        payload: ${{fromJson(needs.checkout.outputs.payload_json).payload}}
+        include: ${{fromJson(needs.checkout.outputs.payload_json).payload}}
     steps:
       - name: Transform yaml to Json
+        env:
+          MATRIX: ${{ toJSON(matrix) }}
+          FILES: ${{ fromJSON(toJSON(matrix)).files }}
+          COUNT: ${{ fromJSON(toJSON(matrix)).count }}
         id: transform-yaml-to-json
-        if: ${{matrix.payload.count}} > 0
+        if: $COUNT > 0
         run: |
           echo Transform files
+          echo $MATRIX
+          echo $FILES
+          echo $COUNT
           files=()
-          for file in ${{ fromJson(matrix.payload).files }}; do
+          for file in $FILES; do
           json_content=$(yq eval "$file" -o=json)            
           json_file="${file%.yml}.json"
           echo "$json_content" > "$json_file"
