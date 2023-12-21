@@ -57,7 +57,6 @@ jobs:
           FILES: ${{ fromJSON(toJSON(matrix)).files }}
           COUNT: ${{ fromJSON(toJSON(matrix)).count }}
         id: transform-yaml-to-json
-        if: $COUNT > 0
         run: |
           echo Transform files
           echo $MATRIX
