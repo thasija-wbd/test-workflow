@@ -55,22 +55,25 @@ jobs:
         env:
           MATRIX: ${{ toJSON(matrix) }}
           FILES: ${{ fromJSON(toJSON(matrix)).files }}
-          COUNT: ${{ fromJSON(toJSON(matrix)).count }}
+          ACTION: ${{fromJSON(toJSON(matrix)).action}}
+        if: ${{ fromJSON(toJSON(matrix)).count }} != '0'
         id: transform-yaml-to-json
         run: |
           echo Transform files
           echo $MATRIX
           echo $FILES
-          echo $COUNT
-          files=()
-          for file in $FILES; do
+          echo $ACTION
+          parsed_json_files=()
+          IFS=' ' read -ra new_files <<< "$FILES"
+
+          for file in "${new_files[@]}"; do
           json_content=$(yq eval "$file" -o=json)            
           json_file="${file%.yml}.json"
           echo "$json_content" > "$json_file"
-          files+=("$json_file")
+          parsed_json_files+=("$json_file")
           done
-          echo $files
-          echo "::set-output name=json_file::${files[@]}"
+          echo $parsed_json_files
+          echo "::set-output name=json_file::${parsed_json_files[@]}"
       # - name: Configure AWS creds
       #   uses: aws-actions/configure-aws-credentials@v3
       #   with:
