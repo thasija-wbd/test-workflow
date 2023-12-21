@@ -90,7 +90,9 @@ jobs:
             for file in "${updated_files[@]}"; do
               echo "${file}"
               json_content=$(cat "$file")
-              event_payload=$(echo "$json_content" | jq -c '{"action": ${{fromJSON(toJSON(matrix)).action}}, "payload": {"jobId": .metadata.id,"name":.metadata.name,"version":.metadata.version,"notValidAfter":.metadata.notValidAfter,"notValidBefore":.metadata.notValidBefore,"usageDataQueries":.spec.needsUsageData,"costDataQueries":.spec.costDataQueries,"calculationQuery":.spec.calculationQuery,"active":.metadata.active,"dryRun":.metadata.dryRun}}')
+              action_type= ${{fromJSON(toJSON(matrix)).action}}
+              echo ${action_type}
+              event_payload=$(echo "$json_content" | jq -c '{"action": "${action_type}", "payload": {"jobId": .metadata.id,"name":.metadata.name,"version":.metadata.version,"notValidAfter":.metadata.notValidAfter,"notValidBefore":.metadata.notValidBefore,"usageDataQueries":.spec.needsUsageData,"costDataQueries":.spec.costDataQueries,"calculationQuery":.spec.calculationQuery,"active":.metadata.active,"dryRun":.metadata.dryRun}}')
               payload_files+=("$event_payload")
             done
           fi
