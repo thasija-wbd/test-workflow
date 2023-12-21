@@ -41,10 +41,10 @@ jobs:
       - name: Create JSON payload
         id: create-json
         run: |
-          added_files=("${{ steps.changed-files.outputs.added_files }}")
-          modified_files=("${{ steps.changed-files.outputs.modified_files }}")
-          added_files_count: ${{steps.changed-files.outputs.added_files_count}}
-          modified_files_count: ${{steps.changed-files.outputs.modified_files_count}}
+          added_files=${{ steps.changed-files.outputs.added_files }}
+          modified_files= ${{ steps.changed-files.outputs.modified_files }}
+          added_files_count= ${{steps.changed-files.outputs.added_files_count}}
+          modified_files_count= ${{steps.changed-files.outputs.modified_files_count}}
 
 
           # Create JSON structure
