@@ -35,10 +35,10 @@ jobs:
     steps:
       - name: Console All
         run: |
-          echo ${inputs.matrix}
-          echo ${inputs.files}
-          echo ${inputs.count}
-          echo ${inputs.action}
+          echo ${{inputs.matrix}}
+          echo ${{inputs.files}}
+          echo ${{inputs.count}}
+          echo ${{inputs.action}}
       - name: Checkout
         uses: actions/checkout@v4
         with:
