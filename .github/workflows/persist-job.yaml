@@ -1,4 +1,5 @@
 name: Persist Job
+
 on:
   workflow_call:
     inputs:
@@ -21,8 +22,8 @@ on:
         required: false
         default: ""
         description: >
-          A map of key:value pairs that are used to inject extra secrets into the github environment.
-          The key is mapped as the environment variable name and the value is used as the value to assign
+          A map of key:value pairs that are used to inject extra secrets into the GitHub environment.
+          The key is mapped as the environment variable name, and the value is used as the value to assign
           to that variable from the secrets.
         type: string
 
@@ -51,7 +52,6 @@ jobs:
       - name: Transform yaml to Json
         env:
           FILES: ${{ inputs.files }}
-          ACTION: ${{inputs.action}}
         id: transform-yaml-to-json
         run: |
           files=()
@@ -60,18 +60,15 @@ jobs:
             json_file="${FILE%.yml}.json"
             yq -o=json "$trimmed_file" > "$json_file"
             echo "Converted JSON content saved to $json_file"
-            echo ${cat "$json_file"}
             files+=("$json_file")
           done
-          echo $files
           echo "::set-output name=json_files::${files[@]}"
       - name: Convert json files to payload json
         env:
-          ACTION: ${{fromJSON(toJSON(matrix)).action}}
+          ACTION: ${{inputs.action}}
         id: parse-payload
         run: |
           payload_files=()
-          echo "${{ steps.transform-yaml-to-json.outputs.json_files }}"
           if [[ -n "${{ steps.transform-yaml-to-json.outputs.json_files }}" ]]; then
             IFS=' ' read -ra updated_files <<< "${{ steps.transform-yaml-to-json.outputs.json_files }}"
             for file in "${updated_files[@]}"; do
@@ -84,9 +81,9 @@ jobs:
           fi
           # API CALL
           for payload_file in "${payload_files[@]}"; do
-          aws lambda invoke \
-          --function-name test-function \
-          --cli-binary-format raw-in-base64-out \
-          --payload "${payload_file}" \
-          response.json
+            aws lambda invoke \
+              --function-name test-function \
+              --cli-binary-format raw-in-base64-out \
+              --payload "${payload_file}" \
+              response.json
           done

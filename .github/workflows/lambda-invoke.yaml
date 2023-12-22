@@ -51,7 +51,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - uses: ./.github/workflows/persist-job.yaml
+      - uses: ./.github/workflows/persist-job
         with:
           matrix: ${{ toJSON(matrix) }}
           files: ${{ fromJSON(toJSON(matrix)).files }}
