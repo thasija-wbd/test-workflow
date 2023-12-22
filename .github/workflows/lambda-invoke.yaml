@@ -1,5 +1,4 @@
 name: Lamda invoke Job
-
 on:
   push:
     branches:
@@ -7,7 +6,6 @@ on:
     paths:
       - job-definitions/**
 permissions: write-all
-
 jobs:
   checkout:
     runs-on: ubuntu-latest
@@ -50,58 +48,10 @@ jobs:
     strategy:
       matrix:
         include: ${{fromJson(needs.checkout.outputs.payload_json).payload}}
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: ./.github/workflows/persist-job.yaml
         with:
-          fetch-depth: 2
-      - name: Configure AWS creds
-        uses: aws-actions/configure-aws-credentials@v3
-        with:
-          role-to-assume: arn:aws:iam::076787413861:role/test-iam
-          role-session-name: deploysession
-          aws-region: us-east-1
-      - name: Transform yaml to Json
-        env:
-          MATRIX: ${{ toJSON(matrix) }}
-          FILES: ${{ fromJSON(toJSON(matrix)).files }}
-          ACTION: ${{fromJSON(toJSON(matrix)).action}}
-        if: ${{ fromJSON(toJSON(matrix)).count }} != "0"
-        id: transform-yaml-to-json
-        run: |
-          files=()
-          for FILE in $FILES; do
-            trimmed_file=$(echo "$FILE" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-            json_file="${FILE%.yml}.json"
-            yq -o=json "$trimmed_file" > "$json_file"
-            echo "Converted JSON content saved to $json_file"
-            files+=("$json_file")
-          done
-          echo $files
-          echo "::set-output name=json_files::${files[@]}"
-      - name: Convert json files to payload json
-        env:
-          ACTION: ${{fromJSON(toJSON(matrix)).action}}
-        id: parse-payload
-        run: |
-          payload_files=()
-          echo "${{ steps.transform-yaml-to-json.outputs.json_files }}"
-          if [[ -n "${{ steps.transform-yaml-to-json.outputs.json_files }}" ]]; then
-            IFS=' ' read -ra updated_files <<< "${{ steps.transform-yaml-to-json.outputs.json_files }}"
-            for file in "${updated_files[@]}"; do
-              echo "${file}"
-              json_content=$(cat "$file")
-              action_type="$ACTION"
-              event_payload=$(echo "$json_content" | jq -c '{"action": "'"$action_type"'", "payload": {"jobId": .metadata.id,"name":.metadata.name,"version":.metadata.version,"notValidAfter":.metadata.notValidAfter,"notValidBefore":.metadata.notValidBefore,"usageDataQueries":.spec.needsUsageData,"costDataQueries":.spec.costDataQueries,"calculationQuery":.spec.calculationQuery,"active":.metadata.active,"dryRun":.metadata.dryRun}}')
-              payload_files+=("$event_payload")
-            done
-          fi
-          # API CALL
-          for payload_file in "${payload_files[@]}"; do
-          aws lambda invoke \
-          --function-name test-function \
-          --cli-binary-format raw-in-base64-out \
-          --payload "${payload_file}" \
-          response.json
-          done
+          matrix: ${{ toJSON(matrix) }}
+          files: ${{ fromJSON(toJSON(matrix)).files }}
+          action: ${{fromJSON(toJSON(matrix)).action}}
+          count: ${{fromJSON(toJSON(matrix)).count}}
