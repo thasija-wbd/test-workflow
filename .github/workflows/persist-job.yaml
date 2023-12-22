@@ -31,7 +31,7 @@ jobs:
   apply:
     name: Apply
     runs-on: ubuntu-latest
-    if: ${{inputs.count != "0"}}
+    if: ${{inputs.count != 0}}
     steps:
       - name: Console All
         run: |
