@@ -43,17 +43,13 @@ jobs:
           echo "::set-output name=payload_json::$payload"
 
   persist-job:
-    runs-on: ubuntu-latest
     needs: [checkout]
     strategy:
       matrix:
         include: ${{fromJson(needs.checkout.outputs.payload_json).payload}}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - uses: ./.github/workflows/persist-job
-        with:
-          matrix: ${{ toJSON(matrix) }}
-          files: ${{ fromJSON(toJSON(matrix)).files }}
-          action: ${{fromJSON(toJSON(matrix)).action}}
-          count: ${{fromJSON(toJSON(matrix)).count}}
+    uses: ./.github/workflows/persist-job.yaml
+    with:
+      matrix: ${{ toJSON(matrix) }}
+      files: ${{ fromJSON(toJSON(matrix)).files }}
+      action: ${{fromJSON(toJSON(matrix)).action}}
+      count: ${{fromJSON(toJSON(matrix)).count}}
