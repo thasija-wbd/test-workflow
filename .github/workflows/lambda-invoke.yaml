@@ -49,6 +49,8 @@ jobs:
       matrix:
         include: ${{fromJson(needs.checkout.outputs.payload_json).payload}}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
       - uses: ./.github/workflows/persist-job.yaml
         with:
           matrix: ${{ toJSON(matrix) }}
