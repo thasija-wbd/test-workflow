@@ -54,6 +54,7 @@ jobs:
             json_file="${FILE%.yml}.json"
             yq -o=json "$trimmed_file" > "$json_file"
             echo "Converted JSON content saved to $json_file"
+            echo ${cat "$json_file"}
             files+=("$json_file")
           done
           echo "::set-output name=json_files::${files[@]}"
