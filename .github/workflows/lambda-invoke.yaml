@@ -54,7 +54,6 @@ jobs:
         include: ${{fromJson(needs.checkout.outputs.payload_json).payload}}
     uses: ./.github/workflows/persist-job.yaml
     with:
-      matrix: ${{ toJSON(matrix) }}
       files: ${{ fromJSON(toJSON(matrix)).files }}
       action: ${{fromJSON(toJSON(matrix)).action}}
       count: ${{fromJSON(toJSON(matrix)).count}}
