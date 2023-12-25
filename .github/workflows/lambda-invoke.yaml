@@ -48,7 +48,7 @@ jobs:
           )
           echo "${create}"
           echo "${update}"
-          payload=$(jq -n --argjson payload "[$create,$update]" \
+          payload=$(jq -n -c --argjson payload "[$create,$update]" \
               '$ARGS.named'
           )
           echo "${payload}"
