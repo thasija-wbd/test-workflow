@@ -46,9 +46,12 @@ jobs:
               --arg action "UPDATE" \
               '$ARGS.named'
           )
+          echo "${create}"
+          echo "${update}"
           payload=$(jq -n --argjson payload "[$create,$update]" \
               '$ARGS.named'
           )
+          echo "${payload}"
           echo "payload_json=$payload" >> $GITHUB_OUTPUT
 
   persist-job:
