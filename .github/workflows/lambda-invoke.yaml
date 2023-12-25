@@ -32,26 +32,19 @@ jobs:
       - name: Create JSON payload
         id: create-json
         run: |
-          added_files="${{ steps.changed-files.outputs.added_files }}"
-          modified_files="${{ steps.changed-files.outputs.modified_files }}"
-          added_files_count="${{ steps.changed-files.outputs.added_files_count }}"
-          modified_files_count="${{ steps.changed-files.outputs.modified_files_count }}"
-          create=$(jq -n --arg files "${added_files}" \
-              --arg count "${added_files_count}" \
+          create=$(jq -n --arg files "${{ steps.changed-files.outputs.added_files }}" \
+              --arg count "${{ steps.changed-files.outputs.added_files_count }}" \
               --arg action "CREATE" \
               '$ARGS.named'
           )
-          update=$(jq -n --arg files "${modified_files}" \
-              --arg count "${modified_files_count}" \
+          update=$(jq -n --arg files "${{ steps.changed-files.outputs.modified_files }}" \
+              --arg count "${{ steps.changed-files.outputs.modified_files_count }}" \
               --arg action "UPDATE" \
               '$ARGS.named'
           )
-          echo "${create}"
-          echo "${update}"
           payload=$(jq -n -c --argjson payload "[$create,$update]" \
               '$ARGS.named'
           )
-          echo "${payload}"
           echo "payload_json=$payload" >> $GITHUB_OUTPUT
 
   persist-job:

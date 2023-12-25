@@ -67,10 +67,9 @@ jobs:
           if [[ -n "${{ steps.transform-yaml-to-json.outputs.json_files }}" ]]; then
             IFS=' ' read -ra updated_files <<< "${{ steps.transform-yaml-to-json.outputs.json_files }}"
             for file in "${updated_files[@]}"; do
-              echo "${file}"
               json_content=$(cat "$file")
               action_type="$ACTION"
-              event_payload=$(echo "$json_content" | jq -c '{"action": "'"$action_type"'", "payload": .')
+              event_payload=$(echo "$json_content" | jq -c '{"action": "'"$action_type"'", "payload": '"$json_content"'}')
               payload_files+=("$event_payload")
             done
           fi
