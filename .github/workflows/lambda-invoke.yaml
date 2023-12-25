@@ -36,11 +36,13 @@ jobs:
           modified_files="${{ steps.changed-files.outputs.modified_files }}"
           added_files_count="${{ steps.changed-files.outputs.added_files_count }}"
           modified_files_count="${{ steps.changed-files.outputs.modified_files_count }}"
-          payload='{"payload": ['
-          payload+="{\"files\": \"$added_files\", \"count\": \"$added_files_count\", \"action\": \"CREATE\"},"
-          payload+="{\"files\": \"$modified_files\", \"count\": \"$modified_files_count\", \"action\": \"UPDATE\"}"
-          payload+=']}'
-          echo "::set-output name=payload_json::$payload"
+          payload=$(jq -n \
+          --arg added_files "$added_files" \
+          --arg added_files_count "$added_files_count" \
+          --arg modified_files "$modified_files" \
+          --arg modified_files_count "$modified_files_count" \
+          '{ "payload": [ { "files": $added_files, "count": $added_files_count, "action": "CREATE" }, { "files": $modified_files, "count": $modified_files_count, "action": "UPDATE" } ] }')
+          echo "payload_json=$payload" >> $GITHUB_OUTPUT
 
   persist-job:
     needs: [checkout]

@@ -57,8 +57,8 @@ jobs:
             echo "$(cat "$json_file")" 
             files+=("$json_file")
           done
-          echo "::set-output name=json_files::${files[@]}"
-      - name: Convert json files to payload json
+          echo "json_files=${files[@]}" >> $GITHUB_OUTPUT
+      - name: Call the lambda function
         env:
           ACTION: ${{inputs.action}}
         id: parse-payload
@@ -70,7 +70,7 @@ jobs:
               echo "${file}"
               json_content=$(cat "$file")
               action_type="$ACTION"
-              event_payload=$(echo "$json_content" | jq -c '{"action": "'"$action_type"'", "payload": {"jobId": .metadata.id,"name":.metadata.name,"version":.metadata.version,"notValidAfter":.metadata.notValidAfter,"notValidBefore":.metadata.notValidBefore,"usageDataQueries":.spec.needsUsageData,"costDataQueries":.spec.costDataQueries,"calculationQuery":.spec.calculationQuery,"active":.metadata.active,"dryRun":.metadata.dryRun}}')
+              event_payload=$(echo "$json_content" | jq -c '{"action": "'"$action_type"'", "payload": .')
               payload_files+=("$event_payload")
             done
           fi
