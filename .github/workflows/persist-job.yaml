@@ -3,28 +3,21 @@ name: Persist Job
 on:
   workflow_call:
     inputs:
-      matrix:
-        required: true
-        description: The matrix of infrastructure deployments to build with Terragrunt.
-        type: string
       files:
-        required: false
-        description: The map of feature flags set in the workflow spec.
+        required: true
+        description: >
+          The compilation of files that have been either newly created or updated within the context of the job-definition workflow.
         type: string
       action:
-        required: false
+        required: true
         description: >
-          Sets the maximum number of parallel Terragrunt actions to execute. If your deployments
-          have any dependencies on each other, then set this to 1.
+          The directive indicating the state of an API call, 
+          specifying whether the operation pertains to creating a new entity ('CREATE') or updating an existing one ('UPDATE').
         type: string
-        default: 1
       count:
-        required: false
-        default: ""
+        required: true
         description: >
-          A map of key:value pairs that are used to inject extra secrets into the GitHub environment.
-          The key is mapped as the environment variable name, and the value is used as the value to assign
-          to that variable from the secrets.
+          The quantity of files that have been either introduced created or modified within the context of the job-definition workflow.
         type: string
 
 jobs:
