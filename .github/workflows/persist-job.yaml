@@ -46,11 +46,8 @@ jobs:
           JSON_FILE: ${{ steps.transform-yaml-to-json.outputs.json_file }}
         id: call-api
         run: |
-          json_content=$(cat "$JSON_FILE")
-          action_type="$ACTION"
-          event_payload=$(echo "$json_content" | jq -c '{"action": "'"$action_type"'", "payload": '"$json_content"'}')
           aws lambda invoke \
             --function-name test-function \
             --cli-binary-format raw-in-base64-out \
-            --payload "${event_payload}" \
+            --payload "$(jq -c --arg action "$ACTION" '{action: $action, payload: .}' "$JSON_FILE")" \
             response.json
