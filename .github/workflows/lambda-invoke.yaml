@@ -2,7 +2,7 @@ name: Persist Job Definitions
 on:
   push:
     branches:
-      - ci/CEA-53457-lambda-invoke
+      - main
     paths:
       - job-definitions/**
 permissions: write-all
