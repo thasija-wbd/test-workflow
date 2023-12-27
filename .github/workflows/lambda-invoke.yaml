@@ -1,8 +1,8 @@
-name: Lamda invoke Job
+name: Persist Job Definitions
 on:
   push:
     branches:
-      - main
+      - ci/CEA-53457-lambda-invoke
     paths:
       - job-definitions/**
 permissions: write-all
@@ -10,7 +10,10 @@ jobs:
   checkout:
     runs-on: ubuntu-latest
     outputs:
-      payload_json: ${{steps.create-json.outputs.payload_json}}
+      added_count: ${{steps.files-count.outputs.added_files_count}}
+      modified_count: ${{steps.files-count.outputs.modified_files_count}}
+      added_json: ${{steps.files-list.outputs.added_files}}
+      modified_json: ${{steps.files-list.outputs.modified_files}}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,31 +32,35 @@ jobs:
           for file in ${{ steps.changed-files.outputs.modified_files }}; do
           echo "$file was modified"
           done
-      - name: Create JSON payload
-        id: create-json
+      - id: files-count
         run: |
-          create=$(jq -n --arg files "${{ steps.changed-files.outputs.added_files }}" \
-              --arg count "${{ steps.changed-files.outputs.added_files_count }}" \
-              --arg action "CREATE" \
-              '$ARGS.named'
-          )
-          update=$(jq -n --arg files "${{ steps.changed-files.outputs.modified_files }}" \
-              --arg count "${{ steps.changed-files.outputs.modified_files_count }}" \
-              --arg action "UPDATE" \
-              '$ARGS.named'
-          )
-          payload=$(jq -n -c --argjson payload "[$create,$update]" \
-              '$ARGS.named'
-          )
-          echo "payload_json=$payload" >> $GITHUB_OUTPUT
-
-  persist-job:
-    needs: [checkout]
+          echo "added_files_count=${{ steps.changed-files.outputs.added_files_count }}" >> $GITHUB_OUTPUT
+          echo "modified_files_count=${{ steps.changed-files.outputs.modified_files_count }}" >> $GITHUB_OUTPUT
+      - id: files-list
+        run: |
+          echo "added_files=$(echo ${{ steps.changed-files.outputs.added_files }} | jq -R -s -c 'split("\n")[:-1]') " >> $GITHUB_OUTPUT
+          echo "modified_files=$(echo ${{ steps.changed-files.outputs.modified_files }} | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+  add-action:
+    if: ${{ needs.checkout.outputs.added_count > 0 }}
+    needs:
+      - checkout
     strategy:
       matrix:
-        include: ${{fromJson(needs.checkout.outputs.payload_json).payload}}
+        added: ${{fromJson(needs.checkout.outputs.added_json)}}
     uses: ./.github/workflows/persist-job.yaml
     with:
-      files: ${{ fromJSON(toJSON(matrix)).files }}
-      action: ${{fromJSON(toJSON(matrix)).action}}
-      count: ${{fromJSON(toJSON(matrix)).count}}
+      file: ${{ matrix.added }}
+      action: "CREATE"
+      account-id: 727224480698
+  modify-action:
+    if: ${{ needs.checkout.outputs.modified_count > 0 }}
+    needs:
+      - checkout
+    strategy:
+      matrix:
+        modified: ${{fromJson(needs.checkout.outputs.modified_json)}}
+    uses: ./.github/workflows/persist-job.yaml
+    with:
+      file: ${{ matrix.modified }}
+      action: "UPDATE"
+      account-id: 727224480698
