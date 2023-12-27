@@ -1,0 +1,34 @@
+apiVersion: metering.wbd.com/v1alpha1
+kind: CalculationJob
+metadata:
+  name: locker-one
+  description: It's a generic calculation job for AWS cost without any kind of usage data.
+  team: service-catalog
+  id: 8edf8294-47af-4f3d-9bba-ed7501b3c39c
+  version: 1
+  endpointVersion: v1
+  dryRun: true
+  needUsageData: true
+  active: true
+  notValidBefore: "2023-06-01 00:00:00"
+  notValidAfter: "2023-12-31 00:00:00"
+spec:
+  usageDataQueries: ["query": "query-12"]
+  costDataQueries:
+    - alias: gc
+      query: |
+        WITH 
+        base_result AS(
+          SELECT 
+            DATEDIFF(minute,LINE_ITEM_USAGE_START_DATE,LINE_ITEM_USAGE_END_DATE) as dd,
+            (dd /60) as hours_inv-1-1olved,LINE_ITEM_PRODUCT_CODE,LINE_ITEM_BLENDED_COST,
+            (LINE_ITEM_BLENDED_COST / hours_involved) as hourly_cost,
+            IFNULL(RESOURCE_TAGS_USER_OMD_BUSINESS_SERVICE,'_unknown') as business_service,
+            IFNULL(RESOURCE_TAGS_USER_OMD_COMPONENT,'_unknown') as component,
+            IFNULL(RESOURCE_TAGS_USER_OMD_SERVICE,'_unknown') as service,LINE_ITEM_USAGE_ACCOUNT_ID,
+            IFNULL(PRODUCT_FROM_REGION_CODE,'global') as region 
+            FROM BOLT_OMD_METRICS_DEV.DATA_PLATFORM_GOLD.AWS_CUR_FILE_USAGE 
+            WHERE {{environment_filter}} AND {{time_filter}}) 
+            select SUM(HOURLY_COST) as value,LINE_ITEM_PRODUCT_CODE,BUSINESS_SERVICE,COMPONENT,SERVICE,LINE_ITEM_USAGE_ACCOUNT_ID,REGION from base_result GROUP BY (LINE_ITEM_PRODUCT_CODE,BUSINESS_SERVICE,COMPONENT,SERVICE,LINE_ITEM_USAGE_ACCOUNT_ID,REGION)
+  calculationQuery: |
+    SELECT `VALUE` as measure,LINE_ITEM_PRODUCT_CODE as awsServiceName,BUSINESS_SERVICE as omdBusinessService,COMPONENT as omdComponent,SERVICE as omdService, LINE_ITEM_USAGE_ACCOUNT_ID as awsAccountId,REGION as awsRegion,'any' as omdMarket,'any' as omdTenant FROM ? as gc
