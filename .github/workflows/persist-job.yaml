@@ -1,12 +1,11 @@
-name: Persist Job
-
+name: Invoke Job Lambda
 on:
   workflow_call:
     inputs:
-      files:
+      file:
         required: true
         description: >
-          The compilation of files that have been either newly created or updated within the context of the job-definition workflow.
+          The file that have been either newly created or updated within the context of the job-definition workflow.
         type: string
       action:
         required: true
@@ -14,17 +13,14 @@ on:
           The directive indicating the state of an API call, 
           specifying whether the operation pertains to creating a new entity ('CREATE') or updating an existing one ('UPDATE').
         type: string
-      count:
+      account-id:
         required: true
-        description: >
-          The quantity of files that have been either introduced created or modified within the context of the job-definition workflow.
         type: string
 
 jobs:
   apply:
     name: Apply
     runs-on: ubuntu-latest
-    if: ${{inputs.count != 0}}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -36,40 +32,25 @@ jobs:
           role-to-assume: arn:aws:iam::076787413861:role/test-iam
           role-session-name: deploysession
           aws-region: us-east-1
-      - name: Transform yaml to Json
+      - name: Transform yaml file to json
         env:
-          FILES: ${{ inputs.files }}
+          FILE: ${{ inputs.file }}
         id: transform-yaml-to-json
         run: |
-          files=()
-          for FILE in $FILES; do
-            trimmed_file=$(echo "$FILE" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-            json_file="${FILE%.yml}.json"
-            yq -o=json "$trimmed_file" > "$json_file"
-            echo "Converted JSON content saved to $json_file"
-            files+=("$json_file")
-          done
-          echo "json_files=${files[@]}" >> $GITHUB_OUTPUT
-      - name: Call the lambda function
+          json_file="${FILE%.yml}.json"
+          yq -o=json "$FILE" > "$json_file"
+          echo "json_file=$json_file" >> $GITHUB_OUTPUT
+      - name: Call the job persister lambda function
         env:
           ACTION: ${{inputs.action}}
-        id: parse-payload
+          JSON_FILE: ${{ steps.transform-yaml-to-json.outputs.json_file }}
+        id: call-api
         run: |
-          payload_files=()
-          if [[ -n "${{ steps.transform-yaml-to-json.outputs.json_files }}" ]]; then
-            IFS=' ' read -ra updated_files <<< "${{ steps.transform-yaml-to-json.outputs.json_files }}"
-            for file in "${updated_files[@]}"; do
-              json_content=$(cat "$file")
-              action_type="$ACTION"
-              event_payload=$(echo "$json_content" | jq -c '{"action": "'"$action_type"'", "payload": '"$json_content"'}')
-              payload_files+=("$event_payload")
-            done
-          fi
-          # API CALL
-          for payload_file in "${payload_files[@]}"; do
-            aws lambda invoke \
-              --function-name test-function \
-              --cli-binary-format raw-in-base64-out \
-              --payload "${payload_file}" \
-              response.json
-          done
+          json_content=$(cat "$JSON_FILE")
+          action_type="$ACTION"
+          event_payload=$(echo "$json_content" | jq -c '{"action": "'"$action_type"'", "payload": '"$json_content"'}')
+          aws lambda invoke \
+            --function-name test-function \
+            --cli-binary-format raw-in-base64-out \
+            --payload "${event_payload}" \
+            response.json
