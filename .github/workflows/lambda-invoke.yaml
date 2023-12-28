@@ -41,6 +41,7 @@ jobs:
           echo "added_files= $(echo "${{ steps.changed-files.outputs.added_files }}" | jq -R  -c 'split(" ")')" >> "$GITHUB_OUTPUT"
           echo "modified_files=$(echo  "${{ steps.changed-files.outputs.modified_files }}" | jq -R  -c 'split(" ")')" >> $GITHUB_OUTPUT
   apply:
+    runs-on: ubuntu-latest
     needs:
       - checkout
     environment: ${{matrix.env_short_name}}
@@ -55,9 +56,11 @@ jobs:
             aws_account_id: 076787413861
           - env_name: prd
             aws_account_id: 076787413861
-    uses: ./.github/workflows/environment.yaml
-    with:
-      added_count: ${{ needs.checkout.outputs.added_count > 0 }}
-      added_json: ${{fromJson(needs.checkout.outputs.added_json)}}
-      modified_count: ${{ needs.checkout.outputs.modified_count > 0 }}
-      modified_json: ${{fromJson(needs.checkout.outputs.modified_json)}}
+    steps:
+      - name: invoke
+        uses: ./.github/workflows/environment.yaml
+        with:
+          added_count: ${{ needs.checkout.outputs.added_count > 0 }}
+          added_json: ${{fromJson(needs.checkout.outputs.added_json)}}
+          modified_count: ${{ needs.checkout.outputs.modified_count > 0 }}
+          modified_json: ${{fromJson(needs.checkout.outputs.modified_json)}}
