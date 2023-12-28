@@ -29,11 +29,13 @@ jobs:
         with:
           fetch-depth: 2
       - name: Transform yaml file to json
+        env:
+          FILE: ${{ inputs.file }}
         id: transform-yaml-to-json
         run: |
-          json_file="${{inputs.file}}.json"
-          yq eval -o=json "${{inputs.file}}" > "$json_file"
-          echo "json_file=$json_file" >> $GITHUB_ENV
+          json_file="${FILE%.}.json"
+          yq -o=json "$FILE" > "$json_file"
+          echo "json_file=$json_file" >> $GITHUB_OUTPUT
   invoke:
     needs: transform
     runs-on: ubuntu-latest
