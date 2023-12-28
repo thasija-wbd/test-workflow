@@ -25,6 +25,10 @@ jobs:
   approval:
     runs-on: ubuntu-latest
     environment: ${{inputs.account-name}}
+    steps:
+      - name: approval
+        run: |
+          echo approval requested
   add-action:
     if: ${{ inputs.added_count > 0 }}
     needs:
