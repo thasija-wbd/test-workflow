@@ -24,7 +24,7 @@ on:
 jobs:
   approval:
     runs-on: ubuntu-latest
-    environment: ${{inputs.account-name}}
+    environment: "dev"
     steps:
       - name: approval
         run: |
