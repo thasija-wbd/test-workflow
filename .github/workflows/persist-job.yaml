@@ -18,20 +18,16 @@ on:
         type: string
 
 jobs:
-  apply:
-    name: Apply
+  transform:
+    name: transform
     runs-on: ubuntu-latest
+    outputs:
+      json_file: ${{ steps.transform-yaml-to-json.outputs.json_file }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 2
-      - name: Configure AWS creds
-        uses: aws-actions/configure-aws-credentials@v3
-        with:
-          role-to-assume: arn:aws:iam::076787413861:role/test-iam
-          role-session-name: deploysession
-          aws-region: us-east-1
       - name: Transform yaml file to json
         env:
           FILE: ${{ inputs.file }}
@@ -40,10 +36,24 @@ jobs:
           json_file="${FILE%.yml}.json"
           yq -o=json "$FILE" > "$json_file"
           echo "json_file=$json_file" >> $GITHUB_OUTPUT
+  invoke:
+    name: invoke
+    needs: transform
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        account-id: ${{inputs.account-id}}
+    steps:
+      - name: Configure AWS creds
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: arn:aws:iam::076787413861:role/test-iam
+          role-session-name: deploysession
+          aws-region: us-east-1
       - name: Call the job persister lambda function
         env:
           ACTION: ${{inputs.action}}
-          JSON_FILE: ${{ steps.transform-yaml-to-json.outputs.json_file }}
+          JSON_FILE: ${{ needs.transform.outputs.json_file }}
         id: call-api
         run: |
           aws lambda invoke \
