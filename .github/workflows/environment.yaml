@@ -22,10 +22,13 @@ on:
         type: string
 
 jobs:
+  approval:
+    runs-on: ubuntu-latest
+    environment: ${{inputs.account-name}}
   add-action:
     if: ${{ inputs.added_count > 0 }}
     needs:
-      - checkout
+      - approval
     strategy:
       matrix:
         added: ${{fromJson(inputs.added_json)}}
@@ -37,7 +40,7 @@ jobs:
   modify-action:
     if: ${{ inputs.modified_count > 0 }}
     needs:
-      - checkout
+      - approval
     strategy:
       matrix:
         modified: ${{fromJson(inputs.modified_json)}}
