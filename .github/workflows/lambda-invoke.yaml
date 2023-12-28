@@ -57,9 +57,9 @@ jobs:
 
     uses: ./.github/workflows/environment.yaml
     with:
-      added_count: ${{ needs.checkout.outputs.added_count > 0 }}
-      added_json: ${{fromJson(needs.checkout.outputs.added_json)}}
-      modified_count: ${{ needs.checkout.outputs.modified_count > 0 }}
-      modified_json: ${{fromJson(needs.checkout.outputs.modified_json)}}
+      added_count: ${{ needs.checkout.outputs.added_count}
+      added_json: ${{needs.checkout.outputs.added_json}}
+      modified_count: ${{ needs.checkout.outputs.modified_count}}
+      modified_json: ${{needs.checkout.outputs.modified_json}}
       account-id: ${{matrix.aws_account_id}}
       account-name: ${{matrix.account-name}}
