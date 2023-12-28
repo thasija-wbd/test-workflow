@@ -52,7 +52,7 @@ jobs:
         id: call-api
         run: |
           json-payload=$( jq -n --arg action "${{ inputs.action }}" \
-          --arg payload "${{ needs.transform.outputs.json_file }} \
+          --arg payload "${{ needs.transform.outputs.json_file }}" \
           '$ARGS.named'
           ) 
           aws lambda invoke \
