@@ -40,19 +40,11 @@ jobs:
     name: invoke
     needs: transform
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include:
-          - env_short_name: dev
-            aws_account_id: 727224480698
-          - env_short_name: int
-            aws_account_id: 727224480698
-          - env_name: stg
-            aws_account_id: 727224480698
-          - env_name: prd
-            aws_account_id: 727224480698
-    environment: ${{matrix.env_short_name}}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
       - name: Configure AWS creds
         uses: aws-actions/configure-aws-credentials@v3
         with:

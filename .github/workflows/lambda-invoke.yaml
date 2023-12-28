@@ -40,27 +40,24 @@ jobs:
         run: |
           echo "added_files= $(echo "${{ steps.changed-files.outputs.added_files }}" | jq -R  -c 'split(" ")')" >> "$GITHUB_OUTPUT"
           echo "modified_files=$(echo  "${{ steps.changed-files.outputs.modified_files }}" | jq -R  -c 'split(" ")')" >> $GITHUB_OUTPUT
-  add-action:
-    if: ${{ needs.checkout.outputs.added_count > 0 }}
+  apply:
     needs:
       - checkout
+    environment: ${{matrix.env_short_name}}
     strategy:
       matrix:
-        added: ${{fromJson(needs.checkout.outputs.added_json)}}
-    uses: ./.github/workflows/persist-job.yaml
+        include:
+          - env_short_name: dev
+            aws_account_id: 076787413861
+          - env_short_name: int
+            aws_account_id: 076787413861
+          - env_name: stg
+            aws_account_id: 076787413861
+          - env_name: prd
+            aws_account_id: 076787413861
+    uses: ./.github/workflows/environment.yaml
     with:
-      file: ${{ matrix.added }}
-      action: "CREATE"
-      # account-id: '["727224480698", "727224480698"]'
-  modify-action:
-    if: ${{ needs.checkout.outputs.modified_count > 0 }}
-    needs:
-      - checkout
-    strategy:
-      matrix:
-        modified: ${{fromJson(needs.checkout.outputs.modified_json)}}
-    uses: ./.github/workflows/persist-job.yaml
-    with:
-      file: ${{ matrix.modified }}
-      action: "UPDATE"
-      # account-id: '["727224480698", "727224480698"]'
+      added_count: ${{ needs.checkout.outputs.added_count > 0 }}
+      added_json: ${{fromJson(needs.checkout.outputs.added_json)}}
+      modified_count: ${{ needs.checkout.outputs.modified_count > 0 }}
+      modified_json: ${{fromJson(needs.checkout.outputs.modified_json)}}

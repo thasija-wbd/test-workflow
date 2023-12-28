@@ -1,0 +1,48 @@
+name: Invoke For All Envs
+on:
+  workflow_call:
+    inputs:
+      added_count:
+        required: true
+        type: string
+      modified_count:
+        required: true
+        type: string
+      added_json:
+        required: true
+        type: string
+      modified_json:
+        required: true
+        type: string
+      account-id:
+        required: true
+        type: string
+      account-name:
+        required: true
+        type: string
+
+jobs:
+  add-action:
+    if: ${{ inputs.added_count > 0 }}
+    needs:
+      - checkout
+    strategy:
+      matrix:
+        added: ${{fromJson(inputs.added_json)}}
+    uses: ./.github/workflows/persist-job.yaml
+    with:
+      file: ${{ matrix.added }}
+      action: "CREATE"
+      # account-id: '["727224480698", "727224480698"]'
+  modify-action:
+    if: ${{ inputs.modified_count > 0 }}
+    needs:
+      - checkout
+    strategy:
+      matrix:
+        modified: ${{fromJson(inputs.modified_json)}}
+    uses: ./.github/workflows/persist-job.yaml
+    with:
+      file: ${{ matrix.modified }}
+      action: "UPDATE"
+      # account-id: '["727224480698", "727224480698"]'
