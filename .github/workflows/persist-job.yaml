@@ -52,7 +52,7 @@ jobs:
           aws-region: us-east-1
       - name: Call the job persister lambda function
         env:
-          ACTION: ${{inputs.action}}
+          ACTION: '["727224480698,727224480698"]'
           JSON_FILE: ${{ needs.transform.outputs.json_file }}
         id: call-api
         run: |
