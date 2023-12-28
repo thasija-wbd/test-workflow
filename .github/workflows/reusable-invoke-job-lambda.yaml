@@ -45,8 +45,8 @@ jobs:
       - name: Call the job persister lambda function
         id: call-api
         run: |
-          echo "${{step.transform-yaml-to-json.outputs.json_file}}"
-          json_payload=$(jq -c --arg action "${{ inputs.action }}" '{action: $action, payload: .}' "${{step.transform-yaml-to-json.outputs.json_file}}")
+          echo "${{steps.transform-yaml-to-json.outputs.json_file}}"
+          json_payload=$(jq -c --arg action "${{ inputs.action }}" '{action: $action, payload: .}' "${{steps.transform-yaml-to-json.outputs.json_file}}")
           aws lambda invoke \
             --function-name test-function \
             --cli-binary-format raw-in-base64-out \
