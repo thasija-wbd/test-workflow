@@ -64,4 +64,4 @@ jobs:
       modified_count: ${{ needs.checkout.outputs.modified_count}}
       modified_json: ${{needs.checkout.outputs.modified_json}}
       account-id: ${{matrix.aws_account_id}}
-      account-name: ${{matrix.account-name}}
+      account-name: ${{matrix.env_name}}
