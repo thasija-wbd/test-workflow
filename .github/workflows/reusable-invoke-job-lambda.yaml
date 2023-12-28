@@ -31,7 +31,7 @@ jobs:
       - name: Transform yaml file to json
         id: transform-yaml-to-json
         run: |
-          json_file="${FILE%.yml}.json"
+          json_file="${{inputs.file%.yml}.json"
           yq -o=json "${{inputs.file}}" > "$json_file"
           echo "json_file=$json_file" >> $GITHUB_OUTPUT
   invoke:
@@ -51,8 +51,9 @@ jobs:
       - name: Call the job persister lambda function
         id: call-api
         run: |
-          json-payload = $(jq -c --arg action "${{ inputs.action }}" '{action: $action, payload: .}' "${{ needs.transform.outputs.json_file }}")
+          json_payload=$(jq -c --arg action "${{ inputs.action }}" '{action: $action, payload: .}' "${{ needs.transform.outputs.json_file }}")
           aws lambda invoke \
-          --function-name test-function \
-          --payload "${json-payload}" \
-          response.json
+            --function-name test-function \
+            --cli-binary-format raw-in-base64-out \
+            --payload "${json_payload}" \
+            response.json
