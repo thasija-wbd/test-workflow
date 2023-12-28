@@ -31,7 +31,8 @@ jobs:
       - name: Transform yaml file to json
         id: transform-yaml-to-json
         run: |
-          echo "json_file=$(yq e -o=json ${{inputs.file}})" >> $GITHUB_OUTPUT
+          json_file=yq r -j ${{inputs.file}}
+          echo "json_file=$json_file" >> $GITHUB_OUTPUT
 
   invoke:
     needs: transform
