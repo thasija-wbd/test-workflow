@@ -57,7 +57,7 @@ jobs:
 
     uses: ./.github/workflows/environment.yaml
     with:
-      added_count: ${{ needs.checkout.outputs.added_count}
+      added_count: ${{needs.checkout.outputs.added_count}}
       added_json: ${{needs.checkout.outputs.added_json}}
       modified_count: ${{ needs.checkout.outputs.modified_count}}
       modified_json: ${{needs.checkout.outputs.modified_json}}
