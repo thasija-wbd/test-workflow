@@ -40,28 +40,27 @@ jobs:
         run: |
           echo "added_files= $(echo "${{ steps.changed-files.outputs.added_files }}" | jq -R  -c 'split(" ")')" >> "$GITHUB_OUTPUT"
           echo "modified_files=$(echo  "${{ steps.changed-files.outputs.modified_files }}" | jq -R  -c 'split(" ")')" >> $GITHUB_OUTPUT
-  apply:
+  add-action:
+    if: ${{ needs.checkout.outputs.added_count > 0 }}
     needs:
       - checkout
     strategy:
-      max-parallel: 1
-      fail-fast: true
       matrix:
-        include:
-          - env_short_name: dev
-            aws_account_id: 076787413861
-          - env_short_name: int
-            aws_account_id: 076787413861
-          - env_name: stg
-            aws_account_id: 076787413861
-          - env_name: prd
-            aws_account_id: 076787413861
-
-    uses: ./.github/workflows/environment.yaml
+        added: ${{fromJson(needs.checkout.outputs.added_json)}}
+    uses: ./.github/workflows/reusable-invoke-job-lambda.yaml
     with:
-      added_count: ${{needs.checkout.outputs.added_count}}
-      added_json: ${{needs.checkout.outputs.added_json}}
-      modified_count: ${{ needs.checkout.outputs.modified_count}}
-      modified_json: ${{needs.checkout.outputs.modified_json}}
-      account-id: ${{matrix.aws_account_id}}
-      account-name: ${{matrix.env_name}}
+      file: ${{ matrix.added }}
+      action: "CREATE"
+      account-id: 076787413861
+  modify-action:
+    if: ${{ needs.checkout.outputs.modified_count > 0 }}
+    needs:
+      - checkout
+    strategy:
+      matrix:
+        modified: ${{fromJson(needs.checkout.outputs.modified_json)}}
+    uses: ./.github/workflows/reusable-invoke-job-lambda.yaml
+    with:
+      file: ${{ matrix.modified }}
+      action: "UPDATE"
+      account-id: 076787413861

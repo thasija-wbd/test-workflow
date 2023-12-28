@@ -33,12 +33,10 @@ jobs:
           FILE: ${{ inputs.file }}
         id: transform-yaml-to-json
         run: |
-          json_file="${FILE%.yml}.json"
-          yq -o=json "$FILE" > "$json_file"
-          echo "json_file=$json_file" >> $GITHUB_OUTPUT
+          echo "json_file=$(yq -o=json "$FILE")" >> $GITHUB_OUTPUT
   invoke:
-    name: invoke
     needs: transform
+    environment:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
