@@ -13,9 +13,9 @@ on:
           The directive indicating the state of an API call, 
           specifying whether the operation pertains to creating a new entity ('CREATE') or updating an existing one ('UPDATE').
         type: string
-      account-id:
-        required: true
-        type: string
+      # account-id:
+      #   required: true
+      #   type: string
 
 jobs:
   transform:
@@ -42,7 +42,16 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        account-id: ${{inputs.account-id}}
+        include:
+          - env_short_name: dev
+            aws_account_id: 727224480698
+          - env_short_name: int
+            aws_account_id: 727224480698
+          - env_name: stg
+            aws_account_id: 727224480698
+          - env_name: prd
+            aws_account_id: 727224480698
+    environment: ${{matrix.env_short_name}}
     steps:
       - name: Configure AWS creds
         uses: aws-actions/configure-aws-credentials@v3
@@ -52,7 +61,7 @@ jobs:
           aws-region: us-east-1
       - name: Call the job persister lambda function
         env:
-          ACTION: '["727224480698,727224480698"]'
+          ACTION: ${{inputs.action}}
           JSON_FILE: ${{ needs.transform.outputs.json_file }}
         id: call-api
         run: |
