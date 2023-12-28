@@ -44,6 +44,8 @@ jobs:
     needs:
       - checkout
     strategy:
+      max-parallel: 1
+      fail-fast: true
       matrix:
         include:
           - env_short_name: dev
