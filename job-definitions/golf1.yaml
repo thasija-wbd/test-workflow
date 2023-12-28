@@ -1,7 +1,7 @@
 apiVersion: metering.wbd.com/v1alpha1
 kind: CalculationJob
 metadata:
-  name: golf-111
+  name: golf-111-12
   description: It's a generic calculation job for AWS cost without any kind of usage data.
   team: service-catalog
   id: 8edf8294-47af-4f3d-9bba-ed7501b3c39c

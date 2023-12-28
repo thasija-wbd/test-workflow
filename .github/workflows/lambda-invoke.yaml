@@ -57,6 +57,10 @@ jobs:
           - env_name: prd
             aws_account_id: 076787413861
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
       - name: invoke
         uses: ./.github/workflows/environment.yaml
         with:
