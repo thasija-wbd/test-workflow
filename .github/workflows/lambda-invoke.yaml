@@ -51,7 +51,7 @@ jobs:
     with:
       file: ${{ matrix.added }}
       action: "CREATE"
-      account-id: 727224480698
+      account-id: '["727224480698", "727224480698"]'
   modify-action:
     if: ${{ needs.checkout.outputs.modified_count > 0 }}
     needs:
@@ -63,4 +63,4 @@ jobs:
     with:
       file: ${{ matrix.modified }}
       action: "UPDATE"
-      account-id: 727224480698
+      account-id: '["727224480698", "727224480698"]'
