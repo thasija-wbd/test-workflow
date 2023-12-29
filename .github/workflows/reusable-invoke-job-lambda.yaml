@@ -44,7 +44,7 @@ jobs:
       - name: Configure AWS creds
         uses: aws-actions/configure-aws-credentials@v3
         with:
-          role-to-assume: arn:aws:iam::076787413861:role/test-cool
+          role-to-assume: arn:aws:iam::${{matrix.aws_account_id}}}:role/test-cool
           role-session-name: deploysession
           aws-region: us-east-1
       - name: Call the job persister lambda function
