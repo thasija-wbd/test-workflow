@@ -23,16 +23,16 @@ jobs:
       matrix:
         include:
           - env_short_name: dev
-            aws_account_id: 727224480698
+            aws_account_id: 76787413861
           - env_short_name: int
-            aws_account_id: 221919140593
+            aws_account_id: 76787413861
           - env_name: stg
             aws_account_id: 854525647702
           - env_name: prd
             aws_account_id: 241568064299
       fail-fast: true
     name: transform
-    environment: ${{matrix.env_name}}
+    environment: ${{matrix.env_short_name}}
     runs-on: ubuntu-latest
     outputs:
       json_file: ${{ steps.transform-yaml-to-json.outputs.json_file }}
@@ -46,7 +46,7 @@ jobs:
           FILE: ${{ inputs.file }}
         id: transform-yaml-to-json
         run: |
-          echo ${{matrix.env_name}}
+          echo ${{matrix.env_short_name}}
           echo ${{matrix.aws_account_id}}
           json_file="${FILE%}.json"
           yq -o=json "$FILE" > "$json_file"
