@@ -48,7 +48,7 @@ jobs:
         run: |
           echo ${{matrix.env_short_name}}
           echo ${{matrix.aws_account_id}}
-          echo arn:aws:iam::${{matrix.aws_account_id}}:role/test-iam
+          echo arn:aws:iam::'${{matrix.aws_account_id}}':role/test-iam
           json_file="${FILE%}.json"
           yq -o=json "$FILE" > "$json_file"
           echo "json_file=$json_file" >> $GITHUB_OUTPUT
