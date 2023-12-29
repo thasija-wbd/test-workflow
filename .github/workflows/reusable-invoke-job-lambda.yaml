@@ -46,6 +46,8 @@ jobs:
           FILE: ${{ inputs.file }}
         id: transform-yaml-to-json
         run: |
+          echo ${{matrix.env_name}}
+          echo ${{matrix.aws_account_id}}
           json_file="${FILE%}.json"
           yq -o=json "$FILE" > "$json_file"
           echo "json_file=$json_file" >> $GITHUB_OUTPUT
