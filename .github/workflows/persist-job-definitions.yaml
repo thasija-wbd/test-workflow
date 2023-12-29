@@ -35,7 +35,7 @@ jobs:
           echo "modified_files=$(echo  "${{ steps.changed-files.outputs.modified_files }}" | jq -R  -c 'split(" ")')" >> $GITHUB_OUTPUT
       - id: aws-configurations
         run: |
-          echo "aws_accounts=$(jq -n '[{"aws_account_id":"076787413861","env_short_name":"dev"},{"aws_account_id":"076787413861","env_short_name":"int"},{"aws_account_id":"076787413861","env_short_name":"stg"},{"aws_account_id":"076787413861","env_short_name":"prod"}]' | jq -c)" >> $GITHUB_ENV
+          echo "aws_accounts=$(echo jq -n '[{"aws_account_id":"076787413861","env_short_name":"dev"},{"aws_account_id":"076787413861","env_short_name":"int"},{"aws_account_id":"076787413861","env_short_name":"stg"},{"aws_account_id":"076787413861","env_short_name":"prod"}]' | jq -c)" >> $GITHUB_ENV
       - id: test
         run: |
           echo ${{steps.aws-configurations.outputs.aws_accounts}}
