@@ -23,7 +23,7 @@ jobs:
       matrix:
         include:
           - env_short_name: dev
-            aws_account_id: 076787413861
+            aws_account_id: "076787413861"
           - env_short_name: int
             aws_account_id: 076787413861
           - env_name: stg
@@ -48,23 +48,22 @@ jobs:
         run: |
           echo ${{matrix.env_short_name}}
           echo ${{matrix.aws_account_id}}
-          echo arn:aws:iam::'${{matrix.aws_account_id}}':role/test-iam
+          echo arn:aws:iam::"${{matrix.aws_account_id}}":role/test-iam
           json_file="${FILE%}.json"
           yq -o=json "$FILE" > "$json_file"
           echo "json_file=$json_file" >> $GITHUB_OUTPUT
       - name: Configure AWS creds
         uses: aws-actions/configure-aws-credentials@v3
         with:
-          role-to-assume: arn:aws:iam::${{matrix.aws_account_id}}:role/test-iam
+          role-to-assume: arn:aws:iam::"${{matrix.aws_account_id}}":role/test-iam
           role-session-name: deploysession
           aws-region: us-east-1
       - name: Call the job persister lambda function
         id: call-api
         run: |
-          echo "${{steps.transform-yaml-to-json.outputs.json_file}}"
-          json_payload=$(jq -c --arg action "${{ inputs.action }}" '{action: $action, payload: .}' "${{steps.transform-yaml-to-json.outputs.json_file}}")
+          jq -c --arg action "${{ inputs.action }}" '{action: $action, payload: .}' "${{ steps.transform-yaml-to-json.outputs.json_file }}" > output.json
           aws lambda invoke \
             --function-name test-function \
             --cli-binary-format raw-in-base64-out \
-            --payload "${json_payload}" \
+            --payload file://output.json \
             response.json
