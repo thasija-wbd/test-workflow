@@ -57,9 +57,8 @@ jobs:
       - name: Call the job persister lambda function # DONE
         id: call-api
         run: |
-          jq -c --arg action "${{ inputs.action }}" '{action: $action, payload: .}' "${{ needs.transform.outputs.json_file }}" > output.json
           aws lambda invoke \
-            --function-name test-function \
-            --cli-binary-format raw-in-base64-out \
-            --payload file://output.json \
-            response.json
+          --function-name test-function \
+          --cli-binary-format raw-in-base64-out \
+          --payload "$(jq -c --arg action "$ACTION" '{action: $action, payload: .}' "$JSON_FILE")" \
+          response.json
