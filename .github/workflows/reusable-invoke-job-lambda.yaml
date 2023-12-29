@@ -13,7 +13,7 @@ on:
           The directive indicating the state of an API call, 
           specifying whether the operation pertains to creating a new entity ('CREATE') or updating an existing one ('UPDATE').
         type: string
-      account-id:
+      account-ids:
         required: true
         type: string
 
@@ -46,6 +46,8 @@ jobs:
           FILE: ${{ inputs.file }}
         id: transform-yaml-to-json
         run: |
+          echo ${{inputs.account-ids}}
+          echo ${{fromJson(inputs.account-ids)}}
           echo ${{matrix.env_short_name}}
           echo ${{matrix.aws_account_id}}
           echo arn:aws:iam::076787413861:role/test-iam
