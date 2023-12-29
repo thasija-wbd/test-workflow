@@ -60,5 +60,5 @@ jobs:
           aws lambda invoke \
           --function-name test-function \
           --cli-binary-format raw-in-base64-out \
-          --payload "$(jq -c --arg action "$ACTION" '{action: $action, payload: .}' "$JSON_FILE")" \
+          --payload "$(jq -c --arg action "$ACTION" '{action: $action, payload: .}' "${{needs.transform.outputs.json_file}}")" \
           response.json
