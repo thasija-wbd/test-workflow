@@ -26,11 +26,10 @@ jobs:
             aws_account_id: "076787413861"
           - env_short_name: int
             aws_account_id: "076787413861"
-          - env_name: stg
-            aws_account_id: 854525647702
-          - env_name: prd
-            aws_account_id: 241568064299
-      fail-fast: true
+          # - env_name: stg
+          #   aws_account_id: 854525647702
+          # - env_name: prd
+          #   aws_account_id: 241568064299
     name: transform
     environment: ${{matrix.env_short_name}}
     runs-on: ubuntu-latest
