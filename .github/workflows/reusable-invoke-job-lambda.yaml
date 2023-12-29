@@ -25,7 +25,7 @@ jobs:
           - env_short_name: dev
             aws_account_id: "076787413861"
           - env_short_name: int
-            aws_account_id: 076787413861
+            aws_account_id: "076787413861"
           - env_name: stg
             aws_account_id: 854525647702
           - env_name: prd
@@ -48,14 +48,14 @@ jobs:
         run: |
           echo ${{matrix.env_short_name}}
           echo ${{matrix.aws_account_id}}
-          echo arn:aws:iam::"${{matrix.aws_account_id}}":role/test-iam
+          echo arn:aws:iam::${{matrix.aws_account_id}}:role/test-iam
           json_file="${FILE%}.json"
           yq -o=json "$FILE" > "$json_file"
           echo "json_file=$json_file" >> $GITHUB_OUTPUT
       - name: Configure AWS creds
         uses: aws-actions/configure-aws-credentials@v3
         with:
-          role-to-assume: arn:aws:iam::"${{matrix.aws_account_id}}":role/test-iam
+          role-to-assume: arn:aws:iam::${{matrix.aws_account_id}}:role/test-iam
           role-session-name: deploysession
           aws-region: us-east-1
       - name: Call the job persister lambda function
