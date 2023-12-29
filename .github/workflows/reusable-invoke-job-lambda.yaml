@@ -22,15 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - env_short_name: dev
-            aws_account_id: "076787413861"
-          - env_short_name: int
-            aws_account_id: "076787413861"
-          # - env_name: stg
-          #   aws_account_id: 854525647702
-          # - env_name: prd
-          #   aws_account_id: 241568064299
+        include: ${{fromJson(inputs.account-ids)}}
     name: transform
     environment: ${{matrix.env_short_name}}
     runs-on: ubuntu-latest
@@ -47,7 +39,6 @@ jobs:
         id: transform-yaml-to-json
         run: |
           echo ${{inputs.account-ids}}
-          echo ${{fromJson(inputs.account-ids)}}
           echo ${{matrix.env_short_name}}
           echo ${{matrix.aws_account_id}}
           echo arn:aws:iam::076787413861:role/test-iam
