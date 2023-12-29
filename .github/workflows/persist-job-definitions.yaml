@@ -14,7 +14,6 @@ jobs:
       modified_count: ${{steps.files-count.outputs.modified_files_count}}
       added_json: ${{steps.files-list.outputs.added_files}}
       modified_json: ${{steps.files-list.outputs.modified_files}}
-      aws_accounts: ${{steps.aws-configurations.outputs.aws_accounts}}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,15 +32,6 @@ jobs:
         run: |
           echo "added_files= $(echo "${{ steps.changed-files.outputs.added_files }}" | jq -R  -c 'split(" ")')" >> "$GITHUB_OUTPUT"
           echo "modified_files=$(echo  "${{ steps.changed-files.outputs.modified_files }}" | jq -R  -c 'split(" ")')" >> $GITHUB_OUTPUT
-      - id: aws-configurations
-        run: |
-          echo "aws_accounts=$(
-          jq -n '[{"aws_account_id":"076787413861","env_short_name":"dev"},
-          {"aws_account_id":"076787413861","env_short_name":"int"},
-          {"aws_account_id":"076787413861","env_short_name":"stg"},
-          {"aws_account_id":"076787413861","env_short_name":"prod"}]' | jq -c
-          )" >> $GITHUB_OUTPUT
-
   add-action:
     if: ${{ needs.checkout.outputs.added_count > 0 }}
     needs:
@@ -53,7 +43,6 @@ jobs:
     with:
       file: ${{ matrix.added }}
       action: "CREATE"
-      account-ids: ${{needs.checkout.outputs.aws_accounts}}
   modify-action:
     if: ${{ needs.checkout.outputs.modified_count > 0 }}
     needs:
@@ -65,4 +54,3 @@ jobs:
     with:
       file: ${{ matrix.modified }}
       action: "UPDATE"
-      account-ids: ${{needs.checkout.outputs.aws_accounts}}
