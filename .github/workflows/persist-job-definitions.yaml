@@ -37,7 +37,7 @@ jobs:
         run: |
           aws_accounts= jq -n '[{"aws_account_id":"076787413861","env_short_name":"dev"},{"aws_account_id":"076787413861","env_short_name":"int"},{"aws_account_id":"076787413861","env_short_name":"stg"},{"aws_account_id":"076787413861","env_short_name":"prod"}]' | jq -c
           echo ${aws_accounts}
-          echo "aws_accounts=${aws_accounts}" >> $GITHUB_OUTPUT
+          echo "aws_accounts='${aws_accounts}'" >> $GITHUB_OUTPUT
       - id: test
         run: |
           echo ${{steps.aws-configurations.outputs.aws_accounts}}
