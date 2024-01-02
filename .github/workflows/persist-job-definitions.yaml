@@ -5,7 +5,9 @@ on:
       - main
     paths:
       - job-definitions/**
-permissions: write-all
+permissions:
+  id-token: write
+  contents: write
 jobs:
   checkout:
     runs-on: ubuntu-latest
