@@ -1,28 +1,31 @@
 ---
-name: Create New Job Definition
-about: Create a new job definition
-title: "Create a new job: replace-me-with-your-job-name"
+name: Create New Job
+about: Create a new Job in service-catalog-metering repository
 labels: "new-job"
+title: "Create Job: replace-me-with-your-job-name"
 assignees: ""
 ---
 
-Update the YAML properties and click "Submit new issue" to automate the creation of a new cost calculation job:
+Update the YAML properties and click "Submit new issue" to automate the creation of a new job in this repository:
 
-```yaml job-definition-yaml
+```yaml job-creation-yaml
 apiVersion: metering.wbd.com/v1alpha1
 kind: CalculationJob
 metadata:
-  name: example-cost-calulation
-  description: cost-calculator
-  team: team-name
-  id: 14a743e5-85f9-49d9-9371-823de7002a8e
+  name: replace-me-with-your-job-name
+  description: replace-me-with-your-description
+  team: replace-me-with-your-job-team
+  # This id will automatically filled after the github action run
+  id:
   version: 1
-  endpointVersion: 1
+  endpoint: replace-me-with-your-endpoint/v1
   dryRun: false
-  needUsageData: true
+  #TODO: add boolean property to enable jobName addition as dimension
+  needsUsageData: true
   active: true
-  notValidBefore: "2023-11-11 00:00:00"
-  notValidAfter: "2023-12-11 00:00:00"
+  # This is an example for the format: '2023-11-11 00:00:00'
+  notValidBefore: replace-me-with-your-notvalidbefore
+  notValidAfter: replace-me-with-your-notvalidbefor
 spec:
   usageDataQueries:
     - alias: dataset1
