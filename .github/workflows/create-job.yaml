@@ -43,7 +43,7 @@ jobs:
             inputs.metadata.id = newUuid;
             const fs = require('fs');
             core.setOutput('metadata-name', JSON.stringify(inputs.metadata.name));
-            core.setOutput('metadata-kind', JSON.stringify(inputs.metadata.kind));
+            core.setOutput('metadata-kind', JSON.stringify(inputs.kind));
             core.setOutput('metadata-version', JSON.stringify(inputs.metadata.version));
             fs.writeFileSync("output.json", JSON.stringify(inputs), "utf8");
 
