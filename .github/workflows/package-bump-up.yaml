@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: klmos/check-if-version-bumped@feat/add-init-package-capability
+      - uses: thasija-wbd/check-if-version-bumpedd
         with:
           path: "${{ matrix.dir }}/package.json"
 
