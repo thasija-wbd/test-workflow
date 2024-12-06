@@ -1,0 +1,24 @@
+name: pull-request-shared-package
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - job-definitions/**
+jobs:
+  check-if-version-bumped:
+    name: Check if version bumped
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: klmos/check-if-version-bumped@feat/add-init-package-capability
+        with:
+          path: "${{ matrix.dir }}/package.json"
+
+  pr-ready:
+    runs-on: ubuntu-latest
+    if: always()
+    needs:
+      - check-if-version-bumped
+    steps:
+      - run: echo 'PR is ready to merge'
