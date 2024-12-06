@@ -1,5 +1,5 @@
 apiVersion: metering.wbd.com/v1alpha1
-kind: CalculationJob
+kind: CalculationJobasbnjkabskjasb
 metadata:
   name: aws-cost
   description: It's a generic calculation job for AWS cost without any kind of usage data.

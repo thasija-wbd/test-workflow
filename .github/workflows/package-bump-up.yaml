@@ -1,6 +1,6 @@
 name: pull-request-shared-package
 on:
-  pull_request:
+  push:
     branches:
       - main
     paths:
