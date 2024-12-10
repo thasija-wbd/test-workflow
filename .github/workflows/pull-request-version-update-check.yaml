@@ -1,0 +1,44 @@
+name: pull-request-version-update-check
+
+on:
+  workflow_call:
+    inputs:
+      path:
+        description: to be declared
+        type: string
+        required: true
+jobs:
+  check-changed-folders:
+    name: Check changed folders
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v44
+        with:
+          dir_names: true
+          dir_names_max_depth: 2
+          json: true
+          quotepath: false
+          files_yaml: |
+            packages:
+              - ${{ inputs.path }}
+      - run: echo "${{ toJson(steps.changed-files.outputs )}}"
+      - name: "Set output in the matrix format"
+        id: set-output
+        run: echo "changed_directories={\"dir\":${{ steps.changed-files.outputs.packages_all_changed_files }}}" >> "$GITHUB_OUTPUT"
+
+  check-if-version-bumped:
+    name: Check if version bumped
+    needs:
+      - check-changed-folders
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: klmos/check-if-version-bumped@feat/add-init-package-capability
+        with:
+          path: "${{ matrix.dir }}/package.json"
