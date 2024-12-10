@@ -8,6 +8,6 @@ on:
       - job-definition/**
 jobs:
   pull-request-version-update-check:
-    uses: ./pull-request-version-update-check.yaml
+    uses: ./pull-request-version-update-check.yaml@main
     with:
       path: job-definition/**
