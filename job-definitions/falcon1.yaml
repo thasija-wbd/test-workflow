@@ -1,22 +1,4 @@
-apiVersion: metering.wbd.com/v1alpha1
-kind: CalculationJob
-metadata:
-  name: falcon-one-new-1-1-12
-  description: It's a generic calculation job for AWS cost without any kind of usage data.
-  team: service-catalog
-  id: 8edf8294-47af-4f3d-9bba-ed7501b3c39c
-  version: 1
-  endpointVersion: v1
-  dryRun: true
-  needUsageData: false
-  active: true
-  notValidBefore: "2023-06-01 00:00:00"
-  notValidAfter: "2023-12-31 00:00:00"
-spec:
-  usageDataQueries:
-  costDataQueries:
-    - alias: gc
-      query: |
+
         WITH 
         base_result AS(
           SELECT 

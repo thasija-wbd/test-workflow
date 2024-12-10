@@ -1,13 +1,12 @@
-# For additional assistance related to OMD, feel free to connect with the team on the Slack channel #wbd-omd-help.
 name: version-check
 on:
   push:
     branches:
       - main
     paths:
-      - job-definition/**
+      - job-definitions/**
 jobs:
   pull-request-version-update-check:
-    uses: ./.github/workflows/pull-request-version-update-check.yaml
+    uses: ./.github/workflows/pull-request-version-update-check.yaml@main
     with:
-      path: job-definition/**
+      path: job-definitions/**
