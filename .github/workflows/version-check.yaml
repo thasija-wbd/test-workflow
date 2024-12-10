@@ -7,6 +7,6 @@ on:
       - job-definitions/**
 jobs:
   pull-request-version-update-check:
-    uses: ./.github/workflows/pull-request-version-update-check.yaml@main
+    uses: ./.github/workflows/pull-request-version-update-check.yaml
     with:
       path: job-definitions/**
